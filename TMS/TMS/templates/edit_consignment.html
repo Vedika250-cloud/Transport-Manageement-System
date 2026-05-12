@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit Consignment</h2></div>
+    <form action="/edit_consignment/{{ consignment.Consignments_id }}" method="POST">
+        
+        <div class="input-group">
+            <label>Trip ID (Optional)</label>
+            <input type="number" name="trip_id" value="{{ consignment.trip_id if consignment.trip_id else '' }}">
+        </div>
+
+        <div class="input-group">
+            <label>Sender Name</label>
+            <input type="text" name="sender" value="{{ consignment.Sender_name }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Receiver Name</label>
+            <input type="text" name="receiver" value="{{ consignment.Receiver_name }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Goods Type</label>
+            <input type="text" name="goods_type" value="{{ consignment.Goods_type }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Weight (Tons)</label>
+            <input type="number" step="0.1" name="weight" value="{{ consignment.Weight_tone }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Freight Amount (₹)</label>
+            <input type="number" step="0.01" name="amount" value="{{ consignment.Freight_Amount }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="booked" {% if consignment.status == 'booked' %}selected{% endif %}>Booked</option>
+                <option value="in_transit" {% if consignment.status == 'in_transit' %}selected{% endif %}>In Transit</option>
+                <option value="delivered" {% if consignment.status == 'delivered' %}selected{% endif %}>Delivered</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Update Consignment</button>
+    </form>
+</div>
+{% endblock %}

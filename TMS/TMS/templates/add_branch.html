@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2><i data-lucide="building-2" style="vertical-align: middle; margin-right: 8px;"></i>Add New Branch</h2></div>
+    
+    <form action="/add_branch" method="POST">
+        
+        <div class="input-group">
+            <label>Branch Name <span style="color: red;">*</span></label>
+            <input type="text" name="branch_name" required placeholder="e.g. North Region Hub">
+        </div>
+
+        <div class="input-group">
+            <label>City</label>
+            <input type="text" name="city" placeholder="e.g. New York">
+        </div>
+
+        <div class="input-group">
+            <label>State</label>
+            <input type="text" name="state" placeholder="e.g. NY">
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn" style="flex: 1; margin-bottom: 0;">Save Branch</button>
+            <a href="/branches" class="btn btn-secondary" style="flex: 1; margin-bottom: 0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

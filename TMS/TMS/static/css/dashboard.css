@@ -1,0 +1,283 @@
+/* ==================
+   Sidebar Menu - Elegant Minimal
+   ================== */
+.sidebar {
+    width: 280px;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    min-height: 100vh;
+    padding: 40px 0;
+    position: fixed;
+    border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 15px rgba(0,0,0,0.03);
+    z-index: 100;
+}
+
+.sidebar h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 50px;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar h2::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+
+.sidebar ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+}
+
+.sidebar li {
+    margin-bottom: 8px;
+}
+
+.sidebar a {
+    display: flex;
+    color: #4b5563; /* Medium dark gray */
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+    align-items: center;
+    border: 1px solid transparent;
+}
+
+.sidebar a i {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    stroke-width: 2px;
+    transition: var(--transition-fast);
+}
+
+.sidebar a:hover {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(107, 142, 35, 0.2);
+}
+
+.sidebar a:hover i {
+    transform: scale(1.1);
+}
+
+/* Active State */
+.sidebar a:active,
+.sidebar a.active {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+
+/* ==================
+   Sidebar Mobile Backdrop
+   ================== */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    animation: fadeIn 0.3s ease;
+}
+
+@media (max-width: 992px) {
+    .sidebar.open ~ .sidebar-backdrop {
+        display: block;
+    }
+}
+
+/* ==================
+   Main Content Area
+   ================== */
+.main {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==================
+   Top Navigation - Clean & Minimal
+   ================== */
+.navbar {
+    background: transparent;
+    padding: 30px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 50;
+}
+
+.navbar h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.navbar .user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 8px 20px;
+    border-radius: var(--radius-full);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm), var(--glass-border);
+    backdrop-filter: blur(10px);
+}
+
+/* ==================
+   Page Containers
+   ================== */
+.content {
+    padding: 0 50px 50px 50px;
+    flex: 1;
+    max-width: 1500px;
+    width: 100%;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.content h2 {
+    color: var(--text-main);
+    font-size: 36px;
+    font-weight: 700;
+}
+
+/* ==================
+   Dashboard Cards Grid
+   ================== */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 35px 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md), var(--glass-border);
+    border: 1px solid var(--border-color);
+    text-align: left;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg), 0 10px 40px -10px var(--accent-glow);
+    border-color: rgba(107, 142, 35, 0.2);
+}
+
+.card p {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card h3 {
+    font-size: 48px;
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+/* Elegant light tones for specific cards */
+.card-green h3 { color: #556b2f; }
+.card-emerald h3 { color: #059669; }
+.card-amber h3 { color: #b45309; }
+.card-blue h3 { color: #2563eb; }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+    .navbar {
+        padding: 20px;
+    }
+    .content {
+        padding: 0 20px 20px;
+    }
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .mobile-menu-btn {
+        display: block !important;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+    }
+    .mobile-menu-btn svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--text-main);
+    }
+}
+.mobile-menu-btn {
+    display: none;
+}

@@ -1,0 +1,96 @@
+:root {
+    /* Brand Colors - Elegant Light Olive */
+    --primary: #fafafa;
+    --primary-light: #ffffff;
+    --primary-lighter: #f4f4f5;
+    
+    /* Elegant Accents - Olive Green & Earth */
+    --accent: #6b8e23;
+    --accent-glow: rgba(107, 142, 35, 0.2);
+    --accent-hover: #556b2f;
+    --accent-secondary: #8fbc8f;
+    
+    --secondary: #d4af37;
+    --secondary-glow: rgba(212, 175, 55, 0.2);
+    
+    /* Backgrounds */
+    --bg-app: #f9f9f9;
+    --bg-sidebar: rgba(255, 255, 255, 0.9);
+    --bg-card: rgba(255, 255, 255, 0.8);
+    --bg-input: #ffffff;
+    
+    /* Text Colors */
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --text-dark: #374151;
+    
+    /* Premium UI Elements */
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-light: rgba(0, 0, 0, 0.04);
+    --glass-border: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    
+    /* Status Colors */
+    --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --warning: #f59e0b;
+    --warning-bg: rgba(245, 158, 11, 0.1);
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.1);
+    --info: #3b82f6;
+    
+    /* Soft Shadows */
+    --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 20px -5px rgba(0, 0, 0, 0.06), 0 4px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+    
+    /* Refined Radius */
+    --radius-sm: 8px; 
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --transition-smooth: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    
+    /* Subtle Mesh Gradient Background */
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(107, 142, 35, 0.04), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.04), transparent 25%);
+    background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

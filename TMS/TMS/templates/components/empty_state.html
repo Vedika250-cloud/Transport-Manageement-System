@@ -1,0 +1,8 @@
+<div class="empty-state">
+    <i data-lucide="{{ icon|default('inbox') }}"></i>
+    <h3>{{ title|default('No Data Found') }}</h3>
+    <p>{{ message|default('There are currently no records to display in this section.') }}</p>
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="btn"><i data-lucide="plus"></i> {{ action_text }}</a>
+    {% endif %}
+</div>

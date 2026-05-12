@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>💳 Add Payment</h2></div>
+    <form action="/add_payment" method="POST">
+        
+        <div class="input-group">
+            <label>Select Consignment</label>
+            <select name="consignment_id" required>
+                {% for c in consignments %}
+                <option value="{{ c.Consignments_id }}">Consignment #{{ c.Consignments_id }} ({{ c.Sender_name }} to {{ c.Receiver_name }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Amount (₹)</label>
+            <input type="number" step="0.01" name="amount" required>
+        </div>
+
+        <div class="input-group">
+            <label>Payment Method</label>
+            <select name="payment_method">
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+                <option value="card">Card</option>
+                <option value="bank_transfer">Bank Transfer</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Payment Date</label>
+            <input type="date" name="payment_date" required>
+        </div>
+
+        <div class="input-group">
+            <label>Reference Number (Optional)</label>
+            <input type="text" name="reference_no">
+        </div>
+
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Record Payment</button>
+    </form>
+</div>
+{% endblock %}

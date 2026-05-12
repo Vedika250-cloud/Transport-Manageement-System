@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit System User</h2></div>
+    <form action="/edit_user/{{ user.user_id }}" method="POST">
+        <div class="input-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" value="{{ user.First_name }}" required>
+        </div>
+        <div class="input-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" value="{{ user.Last_name }}" required>
+        </div>
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" value="{{ user.Email }}" required>
+        </div>
+        <div class="input-group">
+            <label>Update Password (Optional)</label>
+            <input type="password" name="password" minlength="6" placeholder="Leave blank to keep current password">
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" value="{{ user.Phone if user.Phone else '' }}">
+        </div>
+        
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group" style="flex: 1;">
+                <label>System Role</label>
+                <select name="role" required>
+                    <option value="manager" {% if user.Role == 'manager' %}selected{% endif %}>Manager</option>
+                    <option value="accountant" {% if user.Role == 'accountant' %}selected{% endif %}>Accountant</option>
+                    <option value="driver" {% if user.Role == 'driver' %}selected{% endif %}>Driver</option>
+                    <option value="customer" {% if user.Role == 'customer' %}selected{% endif %}>Customer</option>
+                </select>
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>Branch Assignment</label>
+                <select name="branch_id" required>
+                    {% for branch in branches %}
+                    <option value="{{ branch.branch_id }}" {% if user.branch_id == branch.branch_id %}selected{% endif %}>{{ branch.branch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>Status</label>
+                <select name="status">
+                    <option value="active" {% if user.Status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if user.Status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Update User</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>👨‍✈️ Drivers</h2>
+
+{% if session.role in ['admin', 'manager'] %}
+<a class="btn" href="/add_driver">+ Add Driver</a>
+{% endif %}
+
+<div class="table-container">
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>License</th>
+<th>Phone</th>
+<th>Status</th>
+{% if session.role in ['admin', 'manager'] %}
+<th>Action</th>
+{% endif %}
+</tr>
+
+{% for d in drivers %}
+
+<tr>
+
+<td>{{ d.id }}</td>
+<td>{{ d.name }}</td>
+<td>{{ d.license }}</td>
+<td>{{ d.phone }}</td>
+<td class="status"><span class="status-{{ d.status }}">{{ d.status }}</span></td>
+
+{% if session.role in ['admin', 'manager'] %}
+<td>
+<a class="action-btn edit" href="/edit_driver/{{ d.id }}">Edit</a>
+<a class="action-btn delete" href="/delete_driver/{{ d.id }}">Delete</a>
+</td>
+{% endif %}
+
+</tr>
+
+{% endfor %}
+
+</table>
+</div>
+
+{% endblock %}

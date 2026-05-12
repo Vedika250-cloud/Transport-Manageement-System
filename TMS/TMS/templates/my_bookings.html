@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>📅 My Bookings & Shipment Tracking</h2>
+    <a href="/book" class="btn"><i data-lucide="plus"></i> Book New Delivery</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Package</th>
+                <th>Weight</th>
+                <th class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bookings %}
+            <tr>
+                <td>#{{ b.booking_id }}</td>
+                <td>{{ b.pickup_location }} &rarr; {{ b.drop_location }}</td>
+                <td>{{ b.delivery_date }}</td>
+                <td>{{ b.package_type }}</td>
+                <td>{{ b.package_weight }} kg</td>
+                <td class="text-center">
+                    {% if b.status == 'Pending' %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% elif b.status == 'Delivered' %}
+                        <span class="badge badge-success">Delivered</span>
+                    {% elif b.status == 'Cancelled' %}
+                        <span class="badge badge-danger">Cancelled</span>
+                    {% else %}
+                        <span class="badge badge-info">{{ b.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">
+                    {% set icon = "package-x" %}
+                    {% set title = "No bookings found" %}
+                    {% set message = "You haven't made any bookings yet." %}
+                    {% set action_url = "/book" %}
+                    {% set action_text = "Create one now" %}
+                    {% include "components/empty_state.html" %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

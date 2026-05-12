@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>➕ Add Driver</h2></div>
+    <form action="/add_driver" method="POST">
+        <div class="input-group">
+            <label>Name</label>
+            <input type="text" name="name" required>
+        </div>
+        <div class="input-group">
+            <label>License Number</label>
+            <input type="text" name="license" required>
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone">
+        </div>
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="available">Available</option>
+                <option value="on_trip">On Trip</option>
+                <option value="leave">On Leave</option>
+            </select>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Save Driver</button>
+    </form>
+</div>
+{% endblock %}

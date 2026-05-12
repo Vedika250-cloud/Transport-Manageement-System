@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit Driver</h2></div>
+    <form action="/edit_driver/{{ driver.driver_id }}" method="POST">
+        <div class="input-group">
+            <label>Name</label>
+            <input type="text" name="name" value="{{ driver.name }}" required>
+        </div>
+        <div class="input-group">
+            <label>License Number</label>
+            <input type="text" name="license" value="{{ driver.license_number }}" required>
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" value="{{ driver.phone }}" required>
+        </div>
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="available" {% if driver.status == 'available' %}selected{% endif %}>Available</option>
+                <option value="on_trip" {% if driver.status == 'on_trip' %}selected{% endif %}>On Trip</option>
+                <option value="leave" {% if driver.status == 'leave' %}selected{% endif %}>On Leave</option>
+            </select>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Update Driver</button>
+    </form>
+</div>
+{% endblock %}

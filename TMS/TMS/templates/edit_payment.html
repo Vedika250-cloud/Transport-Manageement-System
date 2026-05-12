@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit Payment</h2></div>
+    <form action="/edit_payment/{{ payment.Payment_id }}" method="POST">
+        
+        <div class="input-group">
+            <label>Consignment ID</label>
+            <input type="text" name="consignment_id" value="{{ payment.Consignment_id }}" readonly>
+        </div>
+
+        <div class="input-group">
+            <label>Amount (₹)</label>
+            <input type="number" step="0.01" name="amount" value="{{ payment.Amount }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Payment Method</label>
+            <select name="payment_method">
+                <option value="cash" {% if payment.method == 'cash' %}selected{% endif %}>Cash</option>
+                <option value="upi" {% if payment.method == 'upi' %}selected{% endif %}>UPI</option>
+                <option value="card" {% if payment.method == 'card' %}selected{% endif %}>Card</option>
+                <option value="bank_transfer" {% if payment.method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Payment Date</label>
+            <input type="date" name="payment_date" value="{{ payment.Payment_date }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Reference Number (Optional)</label>
+            <input type="text" name="reference_no" value="{{ payment.Reference_no if payment.Reference_no else '' }}">
+        </div>
+
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="pending" {% if payment.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="completed" {% if payment.status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="failed" {% if payment.status == 'failed' %}selected{% endif %}>Failed</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Update Payment</button>
+    </form>
+</div>
+{% endblock %}

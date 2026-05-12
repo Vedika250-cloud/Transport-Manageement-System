@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>💳 Payments</h2>
+    {% if session.role in ['manager', 'accountant'] %}
+    <a class="btn" href="/add_payment"><i data-lucide="plus"></i> Add Payment</a>
+    {% endif %}
+</div>
+
+<div class="table-container">
+<table>
+
+<tr>
+<th>ID</th>
+<th>Trip / Route</th>
+<th>Amount</th>
+<th>Method</th>
+<th>Reference No</th>
+<th>Date</th>
+<th>Status</th>
+{% if session.role in ['manager', 'accountant'] %}
+<th>Action</th>
+{% endif %}
+</tr>
+
+{% for p in payments %}
+
+<tr>
+
+<td>#{{ p.payment_id }}</td>
+<td>
+    {% if p.trip %}
+        {{ p.trip }} <br><small style="color: var(--text-muted);">(Trip #{{ p.trip_id }})</small>
+    {% else %}
+        <span style="color: var(--text-muted); font-style: italic;">Not Assigned</span>
+    {% endif %}
+</td>
+<td style="font-weight: 500; color: var(--text-main);">₹ {{ p.amount }}</td>
+<td style="text-transform: capitalize;">{{ p.payment_method }}</td>
+<td>{{ p.reference_no or '-' }}</td>
+<td>{{ p.payment_date }}</td>
+<td class="text-center">
+    {% if p.status == 'completed' %}
+        <span class="badge badge-success">Completed</span>
+    {% elif p.status == 'failed' %}
+        <span class="badge badge-danger">Failed</span>
+    {% else %}
+        <span class="badge badge-warning">Pending</span>
+    {% endif %}
+</td>
+
+{% if session.role in ['manager', 'accountant'] %}
+<td>
+<a class="action-btn edit" href="/edit_payment/{{ p.payment_id }}">Edit</a>
+<a class="action-btn delete" href="/delete_payment/{{ p.payment_id }}">Delete</a>
+</td>
+{% endif %}
+
+</tr>
+
+{% else %}
+<tr>
+    <td colspan="8">
+        {% include "components/empty_state.html" %}
+    </td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+{% endblock %}

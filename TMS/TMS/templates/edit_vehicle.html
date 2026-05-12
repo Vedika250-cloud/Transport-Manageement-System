@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit Vehicle</h2></div>
+    <form action="/edit_vehicle/{{ vehicle.Vehicle_id }}" method="POST">
+        <div class="input-group">
+            <label>Truck Number</label>
+            <input type="text" name="truck_no" value="{{ vehicle.Truck_Number }}" readonly>
+            <small style="color: var(--text-muted); display: block; margin-top: -10px; margin-bottom: 15px;">Truck Number cannot be changed</small>
+        </div>
+        <div class="input-group">
+            <label>Registration Number (e.g. MH12AB1234)</label>
+            <input type="text" name="reg_no" value="{{ vehicle.Registration_Number }}" required>
+        </div>
+        <div class="input-group">
+            <label>Capacity (Tons)</label>
+            <input type="number" step="0.1" name="capacity" value="{{ vehicle.Capacity_Tons }}" required>
+        </div>
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="available" {% if vehicle.Status == 'available' %}selected{% endif %}>Available</option>
+                <option value="in_use" {% if vehicle.Status == 'in_use' %}selected{% endif %}>In Use</option>
+                <option value="maintenance" {% if vehicle.Status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+            </select>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Update Vehicle</button>
+    </form>
+</div>
+{% endblock %}

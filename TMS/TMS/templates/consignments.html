@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>📦 Consignments</h2>
+    {% if session.role != 'admin' %}
+    <a class="btn" href="/add_consignment"><i data-lucide="plus"></i> Create Consignment</a>
+    {% endif %}
+</div>
+
+<div class="table-container">
+<table>
+
+<tr>
+<th>ID</th>
+<th>Sender</th>
+<th>Receiver</th>
+<th>Route</th>
+<th class="text-center">Status</th>
+{% if session.role != 'admin' %}
+<th class="text-center">Action</th>
+{% endif %}
+</tr>
+
+{% for c in consignments %}
+
+<tr>
+
+<td>{{ c.id }}</td>
+<td>{{ c.sender }}</td>
+<td>{{ c.receiver }}</td>
+<td>{{ c.route }}</td>
+<td class="text-center">
+    {% if c.status == 'booked' %}
+        <span class="badge badge-warning">Booked</span>
+    {% elif c.status == 'in_transit' %}
+        <span class="badge badge-info">In Transit</span>
+    {% else %}
+        <span class="badge badge-success">{{ c.status|title }}</span>
+    {% endif %}
+</td>
+
+{% if session.role != 'admin' %}
+<td class="text-center">
+<a class="action-btn edit" href="/edit_consignment/{{ c.id }}">Edit</a>
+<a class="action-btn delete" href="/delete_consignment/{{ c.id }}" onclick="return confirm('Delete this consignment?');">Delete</a>
+</td>
+{% endif %}
+
+</tr>
+
+{% else %}
+<tr>
+    <td colspan="6">
+        {% include "components/empty_state.html" %}
+    </td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>✏️ Edit Trip</h2></div>
+    <form action="/edit_trip/{{ trip.Trip_id }}" method="POST">
+        
+        <div class="input-group">
+            <label>Vehicle ID</label>
+            <select name="vehicle_id" required>
+                {% for v in vehicles %}
+                <option value="{{ v.Vehicle_id }}" {% if trip.Vehicle_id == v.Vehicle_id %}selected{% endif %}>{{ v.Registration_Number }} ({{ v.Capacity_Tons }}t)</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Driver ID</label>
+            <select name="driver_id" required>
+                {% for d in drivers %}
+                <option value="{{ d.driver_id }}" {% if trip.Driver_id == d.driver_id %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Route From</label>
+            <input type="text" name="route_from" value="{{ trip.Route_From }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Route To</label>
+            <input type="text" name="route_to" value="{{ trip.Route_To }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" value="{{ trip.Start_Date }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>End Date (Optional)</label>
+            <input type="date" name="end_date" value="{{ trip.End_Date if trip.End_Date else '' }}">
+        </div>
+
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="pending" {% if trip.Status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in_progress" {% if trip.Status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if trip.Status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="cancelled" {% if trip.Status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Update Trip</button>
+    </form>
+</div>
+{% endblock %}

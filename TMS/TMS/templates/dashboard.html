@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>📊 Dashboard</h2>
+    {% if session.role == 'admin' %}
+    <form id="branchFilterForm" action="/set_branch_filter" method="POST" style="display: flex; gap: 10px; align-items: center;">
+        <label for="branch_id" style="font-weight: 500; color: var(--text-muted); font-size: 14px;">Monitor Branch:</label>
+        <select name="branch_id" id="branch_id" onchange="document.getElementById('branchFilterForm').submit()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; box-shadow: var(--shadow-sm);">
+            <option value="all">Global (All Branches)</option>
+            {% for b in branches_list %}
+            <option value="{{ b.branch_id }}" {% if session.get('admin_branch_filter')|string == b.branch_id|string %}selected{% endif %}>{{ b.branch_name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+</div>
+
+{% if session.role in ['admin', 'manager', 'accountant'] %}
+
+<div class="cards">
+
+<div class="card">
+<h3>{{ booking_count }}</h3>
+<p><i data-lucide="clipboard-list" style="width: 18px; height: 18px; margin-right: 6px;"></i> Total Bookings</p>
+</div>
+
+<div class="card">
+<h3>{{ active_trips }}</h3>
+<p><i data-lucide="truck" style="width: 18px; height: 18px; margin-right: 6px;"></i> Active Trips</p>
+</div>
+
+<div class="card">
+<h3>{{ available_drivers }}</h3>
+<p><i data-lucide="users" style="width: 18px; height: 18px; margin-right: 6px;"></i> Available Drivers</p>
+</div>
+
+<div class="card">
+<h3>{{ vehicle_count }}</h3>
+<p><i data-lucide="car" style="width: 18px; height: 18px; margin-right: 6px;"></i> Total Vehicles</p>
+</div>
+
+<div class="card">
+<h3>₹ {{ payment_total }}</h3>
+<p><i data-lucide="wallet" style="width: 18px; height: 18px; margin-right: 6px;"></i> Total Revenue</p>
+</div>
+
+</div>
+
+<!-- DASHBOARD REPORTS (CHARTS) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="charts-grid" style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
+    
+    <div class="chart-container" style="background: var(--bg-card); backdrop-filter: blur(12px); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); border-top: 3px solid var(--primary-lighter);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 14px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Revenue Timeline (₹)</h3>
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <div class="chart-container" style="background: var(--bg-card); backdrop-filter: blur(12px); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); border-top: 3px solid var(--primary-lighter);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 14px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Trips Started</h3>
+        <canvas id="tripsChart"></canvas>
+    </div>
+
+    <div class="chart-container" style="background: var(--bg-card); backdrop-filter: blur(12px); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); border-top: 3px solid var(--primary-lighter);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 14px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">Fleet Status</h3>
+        <canvas id="vehiclesChart"></canvas>
+    </div>
+
+    <div class="chart-container" style="background: var(--bg-card); backdrop-filter: blur(12px); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color); border-top: 3px solid var(--primary-lighter);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 14px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;">Active Bookings</h3>
+        <canvas id="consignmentsChart"></canvas>
+    </div>
+
+</div>
+
+{% if branch_comparisons %}
+<div class="comparisons-section" style="margin-top: 40px;">
+    <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">🌍 Branch Performance Comparison</h3>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Branch</th>
+                <th>Total Trips</th>
+                <th>Total Revenue (₹)</th>
+            </tr>
+            {% for bc in branch_comparisons %}
+            <tr>
+                <td style="font-weight: 500;">🏢 {{ bc.branch_name }}</td>
+                <td>{{ bc.total_trips }}</td>
+                <td>₹ {{ bc.revenue }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Safely pass Jinja data to JS to prevent IDE syntax errors -->
+<script id="chart-data" type="application/json">
+{
+    "revenue": {{ revenue_data|tojson }},
+    "trips": {{ trips_data|tojson }},
+    "vehicles": {{ vehicle_data|tojson }},
+    "bookings": {{ booking_data|tojson }}
+}
+</script>
+
+<script>
+    // Parse the JSON data safely
+    const rawData = document.getElementById('chart-data').textContent;
+    const chartData = JSON.parse(rawData);
+
+    // Global Chart.js Styling matching exactly with our Light Olive CSS
+    Chart.defaults.color = '#6b7280';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    const gridColor = 'rgba(0, 0, 0, 0.05)';
+
+    // 1. Revenue Chart (Bar)
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Today', 'This Week', 'This Month', 'This Year'],
+            datasets: [{
+                label: 'Revenue',
+                data: chartData.revenue,
+                backgroundColor: 'rgba(107, 142, 35, 0.6)', /* Olive */
+                borderColor: '#6b8e23',
+                borderWidth: 2,
+                borderRadius: 8,
+                hoverBackgroundColor: 'rgba(85, 107, 47, 0.8)' /* Dark Olive */
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, border: { dash: [4, 4] } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Trips Chart (Line Area)
+    new Chart(document.getElementById('tripsChart'), {
+        type: 'line',
+        data: {
+            labels: ['Today', 'This Week', 'This Month', 'This Year'],
+            datasets: [{
+                label: 'Trips',
+                data: chartData.trips,
+                borderColor: '#d4af37', /* Muted Gold */
+                backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#d4af37',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { precision: 0 }, border: { dash: [4, 4] } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 3. Vehicles Chart (Pie)
+    new Chart(document.getElementById('vehiclesChart'), {
+        type: 'pie',
+        data: {
+            labels: ['Available', 'In Use', 'Maintenance'],
+            datasets: [{
+                data: chartData.vehicles,
+                backgroundColor: ['#6b8e23', '#8fbc8f', '#d4af37'], /* Olive, Sea Green, Mustard */
+                borderWidth: 1,
+                borderColor: '#ffffff',
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { 
+                legend: { position: 'bottom', labels: { color: '#4b5563', padding: 20, font: { family: "'Plus Jakarta Sans', sans-serif" } } }
+            }
+        }
+    });
+
+    // 4. Bookings Chart (Doughnut)
+    new Chart(document.getElementById('consignmentsChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Approved', 'In Transit'],
+            datasets: [{
+                data: chartData.bookings,
+                backgroundColor: ['#d4af37', '#8fbc8f', '#556b2f'], /* Mustard, Sea Green, Dark Olive */
+                borderWidth: 1,
+                borderColor: '#ffffff',
+                cutout: '75%',
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { 
+                legend: { position: 'bottom', labels: { color: '#4b5563', padding: 20, font: { family: "'Plus Jakarta Sans', sans-serif" } } }
+            }
+        }
+    });
+</script>
+
+{% elif session.role == 'driver' %}
+
+<div class="driver-dashboard" style="margin-top: 30px;">
+    
+    <h3 style="margin-bottom: 20px; color: var(--text-main);">🟢 Current Trips</h3>
+    {% if current_trips %}
+    <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+            <tr>
+                <th>Trip ID</th>
+                <th>Truck</th>
+                <th>Route</th>
+                <th>Start Date</th>
+                <th>Status Update</th>
+            </tr>
+            {% for t in current_trips %}
+            <tr>
+                <td>#{{ t.id }}</td>
+                <td>{{ t.truck }}</td>
+                <td>{{ t.route }}</td>
+                <td>{{ t.start }}</td>
+                <td>
+                    <form action="/update_trip_status/{{ t.id }}" method="POST" style="display:inline-flex; gap: 8px; align-items: center;">
+                        <select name="status" style="padding:6px; border-radius:4px; border: 1px solid var(--border-color); background: var(--bg-input);">
+                            <option value="In Transit" {% if t.status == 'In Transit' %}selected{% endif %}>In Transit</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <button type="submit" class="action-btn edit"><i data-lucide="check"></i> Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div style="margin-bottom: 40px;">
+        {% set icon = "truck" %}
+        {% set title = "No active trips" %}
+        {% set message = "You have no trips currently in progress." %}
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
+
+    <h3 style="margin-bottom: 20px; color: var(--text-main);">⏳ Upcoming Trips</h3>
+    {% if upcoming_trips %}
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Trip ID</th>
+                <th>Truck</th>
+                <th>Route</th>
+                <th>Scheduled Date</th>
+                <th>Action</th>
+            </tr>
+            {% for t in upcoming_trips %}
+            <tr>
+                <td>#{{ t.id }}</td>
+                <td>{{ t.truck }}</td>
+                <td>{{ t.route }}</td>
+                <td>{{ t.start }}</td>
+                <td>
+                    <form action="/update_trip_status/{{ t.id }}" method="POST">
+                        <input type="hidden" name="status" value="In Transit">
+                        <button type="submit" class="btn"><i data-lucide="play"></i> Start Trip</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div>
+        {% set icon = "calendar" %}
+        {% set title = "No upcoming trips" %}
+        {% set message = "You have no upcoming trips assigned to you." %}
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}

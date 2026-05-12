@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>📅 Manage Customer Bookings</h2>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Customer</th>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Package</th>
+                <th class="text-center">Status</th>
+                {% if session.role != 'admin' %}
+                <th class="text-center">Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bookings %}
+            <tr>
+                <td>#{{ b.booking_id }}</td>
+                <td>{{ b.customer_name }}</td>
+                <td>{{ b.pickup_location }} &rarr; {{ b.drop_location }}</td>
+                <td>{{ b.delivery_date }}</td>
+                <td>{{ b.package_type }} ({{ b.package_weight }}kg)</td>
+                <td class="text-center">
+                    {% if b.status == 'Pending' %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% elif b.status == 'Delivered' %}
+                        <span class="badge badge-success">Delivered</span>
+                    {% elif b.status == 'Cancelled' %}
+                        <span class="badge badge-danger">Cancelled</span>
+                    {% else %}
+                        <span class="badge badge-info">{{ b.status }}</span>
+                    {% endif %}
+                </td>
+                {% if session.role != 'admin' %}
+                <td class="text-center">
+                    {% if b.status == 'Pending' %}
+                    <a href="/approve_booking/{{ b.booking_id }}" class="action-btn edit"><i data-lucide="check"></i> Approve</a>
+                    {% endif %}
+                    {% if b.status == 'Approved' %}
+                    <a href="/add_trip?booking_id={{ b.booking_id }}" class="action-btn edit"><i data-lucide="truck"></i> Assign</a>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">
+                    {% include "components/empty_state.html" %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

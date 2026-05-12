@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form-header">
+    <h2>📦 Book a Delivery</h2>
+</div>
+
+<div class="form-container">
+    <form action="/book" method="POST">
+        <div class="input-group">
+            <label>Pickup Location</label>
+            <input type="text" name="pickup_location" required placeholder="Enter pickup address">
+        </div>
+
+        <div class="input-group">
+            <label>Drop Location</label>
+            <input type="text" name="drop_location" required placeholder="Enter destination address">
+        </div>
+
+        <div class="input-group">
+            <label>Package Type</label>
+            <select name="package_type" required>
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Fragile">Fragile</option>
+                <option value="Documents">Documents</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Package Weight (kg)</label>
+            <input type="number" step="0.1" name="package_weight" required placeholder="0.0">
+        </div>
+
+        <div class="input-group">
+            <label>Delivery Date</label>
+            <input type="date" name="delivery_date" required>
+        </div>
+
+        <div class="input-group">
+            <label>Contact Info</label>
+            <input type="text" name="contact_info" required placeholder="Phone number or email for receiver">
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Create Booking</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS - Dual Portal</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+    body {
+        background: linear-gradient(135deg, #f0f4f8, #cfd9df);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
+    .landing-container {
+        text-align: center;
+        max-width: 900px;
+        width: 100%;
+        padding: 40px;
+    }
+    .logo-img {
+        width: 120px;
+        border-radius: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .landing-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+    .landing-subtitle {
+        font-size: 18px;
+        color: #546e7a;
+        margin-bottom: 40px;
+    }
+    .portal-cards {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .portal-card {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        flex: 1;
+        min-width: 300px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+    }
+    .portal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .portal-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+    .portal-card h3 {
+        font-size: 24px;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+    .portal-card p {
+        color: #546e7a;
+        margin-bottom: 30px;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+    .portal-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .btn-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s ease;
+    }
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+    .btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+    }
+    .btn-secondary:hover {
+        background: #bdc3c7;
+    }
+    .btn-employee {
+        background: #2c3e50;
+        color: white;
+    }
+    .btn-employee:hover {
+        background: #1a252f;
+    }
+</style>
+</head>
+<body>
+
+<div class="landing-container">
+    <img src="https://images-platform.99static.com/AfjT2Rd4UCk-1_gcYAVwxbSnl44=/342x815:1226x1699/fit-in/projects-files/162/16296/1629617/76299882-b512-4e81-93ad-9e15ccac4e9c.jpg" alt="TMS Logo" class="logo-img">
+    <h1 class="landing-title">Transport Management System</h1>
+    <p class="landing-subtitle">Welcome to our Enterprise Logistics Platform. Please select your portal to continue.</p>
+
+    <div class="portal-cards">
+        
+        <!-- Customer Portal -->
+        <div class="portal-card">
+            <div class="portal-icon">📦</div>
+            <h3>Customer Portal</h3>
+            <p>Access our logistics network. Book new consignments, track your active shipments, and view your invoices.</p>
+            <div class="portal-actions">
+                <a href="/login?type=customer" class="btn-block btn-primary">Customer Login</a>
+                <a href="/register" class="btn-block btn-secondary">Register New Account</a>
+            </div>
+        </div>
+
+        <!-- Employee Portal -->
+        <div class="portal-card" style="border-top: 5px solid #2c3e50;">
+            <div class="portal-icon">🏢</div>
+            <h3>Employee Portal</h3>
+            <p>Internal access for logistics staff. Manage branch operations, dispatch vehicles, and oversee logistics routing.</p>
+            <div class="portal-actions">
+                <a href="/login?type=employee" class="btn-block btn-employee">Staff Login</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

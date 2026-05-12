@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2><i data-lucide="edit" style="vertical-align: middle; margin-right: 8px;"></i>Edit Branch (#{{ branch.branch_id }})</h2></div>
+    
+    <form action="/edit_branch/{{ branch.branch_id }}" method="POST">
+        
+        <div class="input-group">
+            <label>Branch Name <span style="color: red;">*</span></label>
+            <input type="text" name="branch_name" value="{{ branch.branch_name }}" required>
+        </div>
+
+        <div class="input-group">
+            <label>City</label>
+            <input type="text" name="city" value="{{ branch.city }}">
+        </div>
+
+        <div class="input-group">
+            <label>State</label>
+            <input type="text" name="state" value="{{ branch.state }}">
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" class="btn" style="flex: 1; margin-bottom: 0;">Update Branch</button>
+            <a href="/branches" class="btn btn-secondary" style="flex: 1; margin-bottom: 0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

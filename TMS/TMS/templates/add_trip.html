@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>🛣 Assign Trip</h2></div>
+    <form action="/add_trip" method="POST">
+        
+        <div class="input-group">
+            <label>Select Vehicle</label>
+            <select name="vehicle_id" required>
+                {% for v in vehicles %}
+                <option value="{{ v.Vehicle_id }}">{{ v.Registration_Number }} ({{ v.Capacity_Tons }}t)</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Select Driver</label>
+            <select name="driver_id" required>
+                {% for d in drivers %}
+                <option value="{{ d.driver_id }}">{{ d.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Route From</label>
+            <input type="text" name="route_from" required>
+        </div>
+
+        <div class="input-group">
+            <label>Route To</label>
+            <input type="text" name="route_to" required>
+        </div>
+
+        <div class="input-group">
+            <label>Start Date</label>
+            <input type="date" name="start_date" required>
+        </div>
+
+        <div class="input-group">
+            <label>End Date (Optional)</label>
+            <input type="date" name="end_date">
+        </div>
+
+        <div class="input-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Create Trip</button>
+    </form>
+</div>
+{% endblock %}

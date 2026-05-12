@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+{% include "components/sidebar.html" %}
+
+<div class="main">
+
+{% include "components/navbar.html" %}
+
+<div class="content">
+
+{% include "components/alerts.html" %}
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+{% include "components/modals.html" %}
+
+<script>
+function confirmLogout(event) {
+  event.preventDefault();
+  document.getElementById('logoutModal').style.display = 'flex';
+}
+function closeLogoutModal() {
+  document.getElementById('logoutModal').style.display = 'none';
+}
+lucide.createIcons();
+</script>
+
+<div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
+</body>
+</html>

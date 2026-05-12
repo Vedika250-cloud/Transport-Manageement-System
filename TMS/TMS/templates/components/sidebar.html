@@ -1,0 +1,38 @@
+<div class="sidebar">
+
+<h2>TMS</h2>
+
+<ul>
+
+<li><a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+
+{% if session["role"] == "admin" %}
+<li><a href="/branches" {% if request.path == '/branches' %}class="active"{% endif %}><i data-lucide="building-2"></i> Branches</a></li>
+{% endif %}
+
+{% if session["role"] in ["admin","manager"] %}
+<li><a href="/vehicles" {% if request.path == '/vehicles' %}class="active"{% endif %}><i data-lucide="truck"></i> Vehicles</a></li>
+<li><a href="/users" {% if request.path == '/users' %}class="active"{% endif %}><i data-lucide="users"></i> Users</a></li>
+<li><a href="/trips" {% if request.path == '/trips' %}class="active"{% endif %}><i data-lucide="route"></i> Trips</a></li>
+<li><a href="/manage_bookings" {% if request.path == '/manage_bookings' %}class="active"{% endif %}><i data-lucide="calendar-check"></i> Manage Bookings</a></li>
+{% endif %}
+
+{% if session["role"] == "customer" %}
+<li><a href="/book" {% if request.path == '/book' %}class="active"{% endif %}><i data-lucide="package-plus"></i> Book Delivery</a></li>
+<li><a href="/my_bookings" {% if request.path == '/my_bookings' %}class="active"{% endif %}><i data-lucide="list"></i> My Bookings</a></li>
+{% endif %}
+
+{% if session["role"] in ["admin","manager","accountant"] %}
+<li><a href="/consignments" {% if request.path == '/consignments' %}class="active"{% endif %}><i data-lucide="box"></i> Consignments</a></li>
+{% endif %}
+
+{% if session["role"] in ["admin","accountant","manager"] %}
+<li><a href="/payments" {% if request.path == '/payments' %}class="active"{% endif %}><i data-lucide="credit-card"></i> Payments</a></li>
+{% endif %}
+
+<li><a href="/profile" {% if request.path == '/profile' %}class="active"{% endif %}><i data-lucide="user"></i> My Profile</a></li>
+<li><a href="#" onclick="confirmLogout(event)"><i data-lucide="log-out"></i> Logout</a></li>
+
+</ul>
+
+</div>

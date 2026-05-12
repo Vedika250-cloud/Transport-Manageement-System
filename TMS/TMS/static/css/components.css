@@ -1,0 +1,257 @@
+/* ==================
+   Buttons
+   ================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #fff;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: var(--transition-fast);
+    border: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer;
+    box-shadow: 0 8px 20px -5px var(--accent-glow), var(--glass-border);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -5px rgba(107, 142, 35, 0.4), var(--glass-border);
+    filter: brightness(1.05);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(107, 142, 35, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    box-shadow: none;
+}
+.btn-secondary:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+.btn-danger:hover {
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: var(--transition-fast);
+    margin-top: 10px;
+    box-shadow: 0 8px 20px -5px var(--accent-glow), var(--glass-border);
+}
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -5px rgba(107, 142, 35, 0.4);
+}
+
+/* ==================
+   Toasts
+   ================== */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg), var(--glass-border);
+    border: 1px solid var(--border-color);
+    animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    min-width: 300px;
+}
+
+.toast span {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.toast-success .toast-icon { color: var(--success); }
+.toast-error .toast-icon { color: var(--danger); }
+.toast-info .toast-icon { color: var(--info); }
+.toast-warning .toast-icon { color: var(--warning); }
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.toast-close:hover {
+    color: var(--text-main);
+}
+
+.toast-close i {
+    width: 16px;
+    height: 16px;
+}
+
+/* ==================
+   Modals
+   ================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-box {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg), var(--glass-border);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-box h3 {
+    margin-bottom: 10px;
+    color: var(--text-main);
+    font-size: 24px;
+}
+
+.modal-box p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 25px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.modal-actions .btn {
+    margin: 0;
+    padding: 12px 24px;
+    font-size: 14px;
+    width: 120px;
+}
+
+/* ==================
+   Empty States
+   ================== */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.empty-state i {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1px;
+    color: var(--border-color);
+}
+
+/* ==================
+   Badges
+   ================== */
+.badge {
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.badge-success {
+    color: #059669;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-info {
+    color: #2563eb;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badge-danger {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Error Messages (Forms) */
+.error-msg {
+    color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}

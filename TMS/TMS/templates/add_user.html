@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header"><h2>➕ Add System User</h2></div>
+    <form action="/add_user" method="POST">
+        <div class="input-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" required>
+        </div>
+        <div class="input-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" required>
+        </div>
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" required>
+        </div>
+        <div class="input-group">
+            <label>Initial Password</label>
+            <input type="password" name="password" required minlength="6">
+        </div>
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone">
+        </div>
+        
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group" style="flex: 1;">
+                <label>System Role</label>
+                <select name="role" required>
+                    <option value="manager" {% if request.args.get('role') == 'manager' %}selected{% endif %}>Manager</option>
+                    <option value="accountant" {% if request.args.get('role') == 'accountant' %}selected{% endif %}>Accountant</option>
+                </select>
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>Branch Assignment</label>
+                <select name="branch_id" required>
+                    {% for branch in branches %}
+                    <option value="{{ branch.branch_id }}">{{ branch.branch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>Status</label>
+                <select name="status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Create User</button>
+    </form>
+</div>
+{% endblock %}

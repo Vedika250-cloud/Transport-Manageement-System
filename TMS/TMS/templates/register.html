@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS Customer Registration</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body class="login-body">
+
+<div class="login-box" style="max-width: 500px;">
+    <h2>Create Customer Account</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ category }}-msg">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/register">
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group">
+                <label>First Name</label>
+                <input type="text" name="first_name" required>
+            </div>
+            <div class="input-group">
+                <label>Last Name</label>
+                <input type="text" name="last_name" required>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" required>
+        </div>
+
+        <div class="input-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone">
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" minlength="6" required>
+        </div>
+
+        <button type="submit" class="btn-login">Register as Customer</button>
+        <a href="/" style="display: block; text-align: center; margin-top: 20px; color: var(--accent); text-decoration: none; font-weight: 500;">← Back to Portal</a>
+    </form>
+</div>
+
+</body>
+</html>

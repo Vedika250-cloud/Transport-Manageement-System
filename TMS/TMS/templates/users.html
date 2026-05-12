@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>👥 Personnel Directory</h2>
+    <div>
+        {% if current_type == 'driver' and session.role == 'manager' %}
+        <a href="/add_driver" class="btn"><i data-lucide="plus"></i> Add Driver</a>
+        {% elif current_type in ['manager', 'accountant'] and session.role == 'admin' %}
+        <a href="/add_user?role={{ current_type }}" class="btn"><i data-lucide="plus"></i> Add {{ current_type|title }}</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Tabs for Users -->
+<div style="display: flex; gap: 12px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+    <a href="/users?type=driver" class="btn btn-secondary" style="margin-bottom: 0; {% if current_type == 'driver' %}background: var(--bg-card); color: var(--accent); border-color: var(--accent);{% endif %}">
+        <i data-lucide="truck"></i> Drivers
+    </a>
+    
+    {% if session.role == 'admin' %}
+    <a href="/users?type=manager" class="btn btn-secondary" style="margin-bottom: 0; {% if current_type == 'manager' %}background: var(--bg-card); color: var(--accent); border-color: var(--accent);{% endif %}">
+        <i data-lucide="briefcase"></i> Managers
+    </a>
+    {% endif %}
+
+    <a href="/users?type=accountant" class="btn btn-secondary" style="margin-bottom: 0; {% if current_type == 'accountant' %}background: var(--bg-card); color: var(--accent); border-color: var(--accent);{% endif %}">
+        <i data-lucide="calculator"></i> Accountants
+    </a>
+</div>
+
+<div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-width: 400px; box-shadow: var(--shadow-sm);">
+    <span style="font-size: 16px; color: var(--text-muted);">🔍</span>
+    <input type="text" id="tableSearch" placeholder="Search records..." style="width: 100%; border: none; background: transparent; font-size: 14px; color: var(--text-main); outline: none;" />
+</div>
+
+<div class="table-container">
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            {% if current_type == 'driver' %}
+            <th>License</th>
+            {% else %}
+            <th>Email</th>
+            {% endif %}
+            <th>Phone</th>
+            <th class="text-center">Status</th>
+            {% if current_type == 'driver' and session.role == 'manager' %}
+            <th class="text-center">Actions</th>
+            {% elif current_type in ['manager', 'accountant'] and session.role == 'admin' %}
+            <th class="text-center">Actions</th>
+            {% endif %}
+        </tr>
+        
+        {% for u in users_data %}
+        <tr>
+            <td>#{{ u.id }}</td>
+            <td style="font-weight: 500;">{{ u.name }}</td>
+            
+            {% if current_type == 'driver' %}
+            <td>{{ u.license }}</td>
+            <td>{{ u.phone }}</td>
+            <td class="text-center">
+                {% if u.status == 'available' or u.status == 'active' %}
+                    <span class="badge badge-success">{{ u.status|title }}</span>
+                {% else %}
+                    <span class="badge badge-danger">{{ u.status|title }}</span>
+                {% endif %}
+            </td>
+            {% if session.role == 'manager' %}
+            <td class="text-center">
+                <a class="action-btn edit" href="/edit_driver/{{ u.id }}">Edit</a>
+                <a class="action-btn delete" href="/delete_driver/{{ u.id }}" onclick="return confirm('Delete this driver?');">Delete</a>
+            </td>
+            {% endif %}
+            
+            {% else %}
+            <td>{{ u.email }}</td>
+            <td>{{ u.phone if u.phone else 'N/A' }}</td>
+            <td class="text-center">
+                {% if u.status == 'available' or u.status == 'active' %}
+                    <span class="badge badge-success">{{ u.status|title }}</span>
+                {% else %}
+                    <span class="badge badge-danger">{{ u.status|title }}</span>
+                {% endif %}
+            </td>
+            {% if session.role == 'admin' %}
+            <td class="text-center">
+                <a class="action-btn edit" href="/edit_user/{{ u.id }}">Edit</a>
+                <a class="action-btn delete" href="/delete_user/{{ u.id }}" onclick="return confirm('Delete this {{ current_type }}?');">Delete</a>
+            </td>
+            {% endif %}
+            {% endif %}
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    {% if not users_data %}
+    <div style="grid-column: 1 / -1;">
+        {% set icon = "users" %}
+        {% set title = "No " ~ current_type|title ~ "s found" %}
+        {% set message = "There are currently no " ~ current_type|title ~ " records." %}
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
