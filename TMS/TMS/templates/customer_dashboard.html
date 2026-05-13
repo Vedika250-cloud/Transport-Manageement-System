@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2>👋 Welcome back, {{ session.username }}!</h2>
+    <a href="/book" class="btn"><i data-lucide="zap"></i> Quick Book Shipment</a>
+</div>
+
+<div class="cards" style="margin-bottom: 30px;">
+
+    <div class="card" style="border-top: 3px solid var(--primary-color); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3>{{ active_shipments }}</h3>
+        <p><i data-lucide="truck" style="width: 18px; height: 18px; margin-right: 6px; color: var(--primary-color);"></i> Active Shipments</p>
+    </div>
+
+    <div class="card" style="border-top: 3px solid var(--success-color); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3>{{ delivered_consignments }}</h3>
+        <p><i data-lucide="check-circle-2" style="width: 18px; height: 18px; margin-right: 6px; color: var(--success-color);"></i> Delivered</p>
+    </div>
+
+    <div class="card" style="border-top: 3px solid var(--warning-color); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3>₹ {{ pending_dues }}</h3>
+        <p><i data-lucide="alert-circle" style="width: 18px; height: 18px; margin-right: 6px; color: var(--warning-color);"></i> Pending Dues</p>
+    </div>
+
+    <div class="card" style="border-top: 3px solid var(--text-muted); transition: transform 0.2s; cursor: default;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <h3>{{ total_bookings }}</h3>
+        <p><i data-lucide="layers" style="width: 18px; height: 18px; margin-right: 6px; color: var(--text-muted);"></i> Total Bookings</p>
+    </div>
+
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 20px;">
+    
+    <!-- Recent Activity -->
+    <div class="recent-activity-section" style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+            <i data-lucide="activity" style="display:inline-block; vertical-align:middle; margin-right: 6px;"></i> Recent Activity
+        </h3>
+        
+        {% if recent_bookings %}
+        <div class="table-container" style="box-shadow: none; border: 1px solid var(--border-color);">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td style="font-weight: 500;">#{{ b.booking_id }}</td>
+                        <td>{{ b.pickup_location }} &rarr; {{ b.drop_location }}</td>
+                        <td>{{ b.delivery_date }}</td>
+                        <td>
+                            {% if b.shipment_status == 'Pending' %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% elif b.shipment_status == 'Approved' %}
+                                <span class="badge badge-info">Approved</span>
+                            {% elif b.shipment_status == 'In Transit' %}
+                                <span class="badge badge-primary">In Transit</span>
+                            {% elif b.shipment_status == 'Out for Delivery' %}
+                                <span class="badge badge-primary">Out for Delivery</span>
+                            {% elif b.shipment_status == 'Delivered' %}
+                                <span class="badge badge-success">Delivered</span>
+                            {% elif b.shipment_status == 'Cancelled' %}
+                                <span class="badge badge-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge badge-info">{{ b.shipment_status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 15px; text-align: right;">
+            <a href="/my_bookings" style="color: var(--primary-color); text-decoration: none; font-size: 14px; font-weight: 500;">View All Bookings &rarr;</a>
+        </div>
+        {% else %}
+            {% set icon = "package-search" %}
+            {% set title = "No recent activity" %}
+            {% set message = "You haven't made any bookings recently." %}
+            {% include "components/empty_state.html" %}
+        {% endif %}
+    </div>
+
+    <!-- Profile Summary & Quick Links -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="profile-summary" style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); text-align: center;">
+            {% if session.profile_pic %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' ~ session.profile_pic) }}" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); margin-bottom: 15px;">
+            {% else %}
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-lighter); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; border: 3px solid var(--primary-color);">
+                    <i data-lucide="user" style="width: 40px; height: 40px; color: var(--primary-color);"></i>
+                </div>
+            {% endif %}
+            <h3 style="font-size: 18px; margin-bottom: 5px;">{{ session.username }}</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Customer Account</p>
+            <a href="/profile" class="btn" style="width: 100%; display: block; text-align: center;"><i data-lucide="settings"></i> Manage Profile</a>
+        </div>
+
+        <div class="quick-links" style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+            <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 14px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Quick Actions</h3>
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                <li><a href="/customer_pricing" style="display: flex; align-items: center; color: var(--text-main); text-decoration: none; padding: 10px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'"><i data-lucide="calculator" style="margin-right: 10px; width: 18px;"></i> Estimate Pricing</a></li>
+                <li><a href="/my_payments" style="display: flex; align-items: center; color: var(--text-main); text-decoration: none; padding: 10px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='var(--bg-input)'" onmouseout="this.style.background='transparent'"><i data-lucide="file-text" style="margin-right: 10px; width: 18px;"></i> View Invoices</a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

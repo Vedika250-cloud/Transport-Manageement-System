@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2><i data-lucide="credit-card"></i> Payment History & Invoices</h2>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Payment ID</th>
+                <th>Booking Ref</th>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Invoice</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in payments %}
+            <tr style="transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+                <td>#{{ p.payment_id }}</td>
+                <td>{% if p.booking_id %}#{{ p.booking_id }}{% else %}-{% endif %}</td>
+                <td>{% if p.pickup_location %}{{ p.pickup_location }} &rarr; {{ p.drop_location }}{% else %}N/A{% endif %}</td>
+                <td>{{ p.payment_date }}</td>
+                <td style="text-transform: capitalize;">{{ p.payment_method }}</td>
+                <td style="font-weight: 600;">₹ {{ p.amount }}</td>
+                <td class="text-center">
+                    {% if p.status == 'pending' %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% elif p.status == 'completed' %}
+                        <span class="badge badge-success">Completed</span>
+                    {% elif p.status == 'failed' %}
+                        <span class="badge badge-danger">Failed</span>
+                    {% else %}
+                        <span class="badge badge-info">{{ p.status }}</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if p.status == 'completed' %}
+                        <button class="btn" style="padding: 6px 12px; font-size: 13px;" onclick="alert('Downloading Invoice for Payment #{{ p.payment_id }}...')"><i data-lucide="download" style="width: 14px; margin-right: 4px;"></i> Download</button>
+                    {% else %}
+                        <button class="btn" style="padding: 6px 12px; font-size: 13px; opacity: 0.5; cursor: not-allowed;"><i data-lucide="download" style="width: 14px; margin-right: 4px;"></i> Unavailable</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8">
+                    {% set icon = "receipt" %}
+                    {% set title = "No payment history" %}
+                    {% set message = "You have no recorded payments yet." %}
+                    {% include "components/empty_state.html" %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

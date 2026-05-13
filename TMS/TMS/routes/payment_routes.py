@@ -139,3 +139,30 @@ def delete_payment(id):
     except Exception as e:
         flash(f"Error deleting payment: {str(e)}", "error")
     return redirect("/payments")
+
+@payment_bp.route("/my_payments")
+@login_required
+@role_required('customer')
+def my_payments():
+    customer_id = session.get("user_id")
+    try:
+        payments_data = execute_read('''
+            SELECT 
+                p.Payment_id AS payment_id, 
+                p.Amount AS amount, 
+                p.method AS payment_method, 
+                p.status AS status,
+                p.Reference_no AS reference_no,
+                p.Payment_date AS payment_date,
+                b.booking_id AS booking_id,
+                b.pickup_location,
+                b.drop_location
+            FROM payments p
+            JOIN bookings b ON p.Booking_id = b.booking_id
+            WHERE b.customer_id = %s
+            ORDER BY p.Payment_date DESC, p.Payment_id DESC
+        ''', (customer_id,))
+    except Exception as e:
+        flash(f"Error loading your payments: {str(e)}", "error")
+        payments_data = []
+    return render_template("my_payments.html", payments=payments_data)

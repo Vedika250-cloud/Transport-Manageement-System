@@ -4,7 +4,9 @@
 
 <ul>
 
+{% if session["role"] != "customer" %}
 <li><a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+{% endif %}
 
 {% if session["role"] == "admin" %}
 <li><a href="/branches" {% if request.path == '/branches' %}class="active"{% endif %}><i data-lucide="building-2"></i> Branches</a></li>
@@ -18,8 +20,11 @@
 {% endif %}
 
 {% if session["role"] == "customer" %}
+<li><a href="/customer_dashboard" {% if request.path == '/customer_dashboard' %}class="active"{% endif %}><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
 <li><a href="/book" {% if request.path == '/book' %}class="active"{% endif %}><i data-lucide="package-plus"></i> Book Delivery</a></li>
 <li><a href="/my_bookings" {% if request.path == '/my_bookings' %}class="active"{% endif %}><i data-lucide="list"></i> My Bookings</a></li>
+<li><a href="/my_payments" {% if request.path == '/my_payments' %}class="active"{% endif %}><i data-lucide="credit-card"></i> My Payments</a></li>
+<li><a href="/customer_pricing" {% if request.path == '/customer_pricing' %}class="active"{% endif %}><i data-lucide="calculator"></i> Services & Pricing</a></li>
 {% endif %}
 
 {% if session["role"] in ["admin","manager","accountant"] %}

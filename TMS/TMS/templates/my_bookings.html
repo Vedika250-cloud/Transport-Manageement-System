@@ -21,21 +21,39 @@
         </thead>
         <tbody>
             {% for b in bookings %}
-            <tr>
-                <td>#{{ b.booking_id }}</td>
-                <td>{{ b.pickup_location }} &rarr; {{ b.drop_location }}</td>
+            <tr style="transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+                <td style="font-weight: 500;">#{{ b.booking_id }}</td>
+                <td>
+                    <div style="font-weight: 500; color: var(--text-main);">{{ b.pickup_location }} &rarr; {{ b.drop_location }}</div>
+                    
+                    <!-- Tracking Timeline -->
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 4px; width: 100%; max-width: 200px;">
+                        {% set statuses = ['Pending', 'Approved', 'In Transit', 'Out for Delivery', 'Delivered'] %}
+                        {% set current_idx = statuses.index(b.shipment_status) if b.shipment_status in statuses else 0 %}
+                        
+                        {% for i in range(5) %}
+                            <div style="flex: 1; height: 4px; border-radius: 2px; background: {% if i <= current_idx %}var(--primary-color){% else %}var(--border-color){% endif %};"></div>
+                        {% endfor %}
+                    </div>
+                </td>
                 <td>{{ b.delivery_date }}</td>
                 <td>{{ b.package_type }}</td>
                 <td>{{ b.package_weight }} kg</td>
                 <td class="text-center">
-                    {% if b.status == 'Pending' %}
+                    {% if b.shipment_status == 'Pending' %}
                         <span class="badge badge-warning">Pending</span>
-                    {% elif b.status == 'Delivered' %}
+                    {% elif b.shipment_status == 'Approved' %}
+                        <span class="badge badge-info">Approved</span>
+                    {% elif b.shipment_status == 'In Transit' %}
+                        <span class="badge badge-primary">In Transit</span>
+                    {% elif b.shipment_status == 'Out for Delivery' %}
+                        <span class="badge badge-primary">Out for Delivery</span>
+                    {% elif b.shipment_status == 'Delivered' %}
                         <span class="badge badge-success">Delivered</span>
-                    {% elif b.status == 'Cancelled' %}
+                    {% elif b.shipment_status == 'Cancelled' %}
                         <span class="badge badge-danger">Cancelled</span>
                     {% else %}
-                        <span class="badge badge-info">{{ b.status }}</span>
+                        <span class="badge badge-info">{{ b.shipment_status }}</span>
                     {% endif %}
                 </td>
             </tr>

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+    <h2><i data-lucide="calculator"></i> Services & Pricing</h2>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+    <!-- Service Rates -->
+    <div class="service-rates" style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+            <i data-lucide="tags" style="display:inline-block; vertical-align:middle; margin-right: 6px;"></i> Base Rates
+        </h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-app); border-radius: 6px; border-left: 3px solid var(--primary-color);">
+                <span style="font-weight: 500;"><i data-lucide="map-pin" style="width: 14px; margin-right: 5px; color: var(--text-muted);"></i> Local Delivery</span>
+                <span style="font-weight: 600;">₹ 300</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-app); border-radius: 6px; border-left: 3px solid var(--primary-color);">
+                <span style="font-weight: 500;"><i data-lucide="map" style="width: 14px; margin-right: 5px; color: var(--text-muted);"></i> Interstate Delivery</span>
+                <span style="font-weight: 600;">₹ 1200</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-app); border-radius: 6px; border-left: 3px solid var(--warning-color);">
+                <span style="font-weight: 500;"><i data-lucide="zap" style="width: 14px; margin-right: 5px; color: var(--text-muted);"></i> Express Priority</span>
+                <span style="font-weight: 600;">+25% base</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-app); border-radius: 6px; border-left: 3px solid var(--danger-color);">
+                <span style="font-weight: 500;"><i data-lucide="alert-triangle" style="width: 14px; margin-right: 5px; color: var(--text-muted);"></i> Fragile Items</span>
+                <span style="font-weight: 600;">+10% base</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-app); border-radius: 6px; border-left: 3px solid var(--text-muted);">
+                <span style="font-weight: 500;"><i data-lucide="weight" style="width: 14px; margin-right: 5px; color: var(--text-muted);"></i> Heavy Goods (>50kg)</span>
+                <span style="font-weight: 600;">₹ 15/kg</span>
+            </div>
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; color: var(--text-muted);"><i data-lucide="info" style="width: 12px; margin-right: 3px;"></i> All final prices are subject to 18% GST / Service fee.</p>
+    </div>
+
+    <!-- Pricing Calculator -->
+    <div class="pricing-calculator" style="background: var(--bg-card); padding: 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-top: 3px solid var(--primary-color);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">
+            Shipment Estimator
+        </h3>
+        
+        <form id="calculatorForm" style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 13px; margin-bottom: 5px; color: var(--text-muted);">Distance</label>
+                    <select id="calc-distance" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-input);">
+                        <option value="local">Local (Same City)</option>
+                        <option value="interstate">Interstate (Across States)</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 13px; margin-bottom: 5px; color: var(--text-muted);">Weight (kg)</label>
+                    <input type="number" id="calc-weight" min="1" value="10" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-input);">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 13px; margin-bottom: 5px; color: var(--text-muted);">Priority</label>
+                    <select id="calc-priority" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-input);">
+                        <option value="standard">Standard Delivery</option>
+                        <option value="express">Express (+25%)</option>
+                    </select>
+                </div>
+                <div style="flex: 1; display: flex; align-items: flex-end; padding-bottom: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
+                        <input type="checkbox" id="calc-fragile" style="width: 16px; height: 16px; accent-color: var(--primary-color);">
+                        Fragile Handling (+10%)
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" onclick="calculateEstimate()" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Calculate Estimate</button>
+        </form>
+
+        <div id="estimateResult" style="display: none; margin-top: 20px; padding: 15px; background: var(--bg-app); border-radius: 6px; border: 1px dashed var(--primary-color);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                <span color="var(--text-muted)">Transport Charge:</span> <span id="res-transport" style="font-weight: 500;">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                <span color="var(--text-muted)">Handling/Fragile:</span> <span id="res-handling" style="font-weight: 500;">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                <span color="var(--text-muted)">Heavy Weight Charge:</span> <span id="res-heavy" style="font-weight: 500;">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">
+                <span color="var(--text-muted)">GST (18%):</span> <span id="res-gst" style="font-weight: 500;">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: var(--primary-color);">
+                <span>Total Estimate:</span> <span id="res-total">₹0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQs Section -->
+<div class="faqs-section" style="background: var(--bg-card); padding: 30px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+    <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: var(--text-main); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; text-align: center;">
+        Frequently Asked Questions
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="package" style="width: 16px; margin-right: 6px;"></i> Booking Process</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">To book a shipment, click "Quick Book Shipment" on your dashboard. Enter your pickup and drop locations, package details, and desired delivery date.</p>
+        </div>
+        
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="credit-card" style="width: 16px; margin-right: 6px;"></i> Payment Methods</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">We accept UPI, Credit/Debit Cards, and Bank Transfers. You can view and pay your pending dues in the "My Payments" section.</p>
+        </div>
+
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="crosshair" style="width: 16px; margin-right: 6px;"></i> Shipment Tracking</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">Track your shipment in real-time from the "My Bookings" page. Status updates are reflected immediately once drivers update them.</p>
+        </div>
+
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="clock" style="width: 16px; margin-right: 6px;"></i> Delivery Timelines</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">Local deliveries typically take 1-2 business days. Interstate deliveries range from 3-7 days depending on the distance. Choose Express for faster service.</p>
+        </div>
+        
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="x-octagon" style="width: 16px; margin-right: 6px;"></i> Cancellation Policy</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">Bookings can be cancelled free of charge if the status is "Pending". Once "Approved" or "In Transit", a cancellation fee may apply.</p>
+        </div>
+
+        <div style="padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
+            <h4 style="font-size: 15px; margin-bottom: 8px; color: var(--primary-color); display: flex; align-items: center;"><i data-lucide="headphones" style="width: 16px; margin-right: 6px;"></i> Customer Support</h4>
+            <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">Need help? Contact our support team at <strong>support@tms.local</strong> or call our toll-free number <strong>1800-TMS-HELP</strong>.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+async function calculateEstimate() {
+    const distance = document.getElementById('calc-distance').value;
+    const weight = document.getElementById('calc-weight').value;
+    const priority = document.getElementById('calc-priority').value;
+    const fragile = document.getElementById('calc-fragile').checked;
+
+    try {
+        const response = await fetch('/api/estimate_pricing', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                distance: distance,
+                weight: weight,
+                priority: priority,
+                fragile: fragile
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            document.getElementById('res-transport').innerText = '₹ ' + data.transport_charge;
+            document.getElementById('res-handling').innerText = '₹ ' + data.handling_charge;
+            document.getElementById('res-heavy').innerText = '₹ ' + data.extra_weight_charge;
+            document.getElementById('res-gst').innerText = '₹ ' + data.gst;
+            document.getElementById('res-total').innerText = '₹ ' + data.total;
+
+            document.getElementById('estimateResult').style.display = 'block';
+        } else {
+            alert('Error calculating estimate.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while calculating estimate.');
+    }
+}
+</script>
+
+{% endblock %}
