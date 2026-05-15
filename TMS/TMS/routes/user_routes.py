@@ -21,15 +21,18 @@ def users():
 
     try:
         data = []
-        filter_clause, params = get_branch_filter(prefix=" AND ")
 
         if user_type == 'driver':
+            filter_clause, params = get_branch_filter(prefix=" AND ")
             data = execute_read(f"SELECT user_id AS id, CONCAT(First_name, ' ', Last_name) AS name, Email AS email, Phone AS phone, Status AS status FROM users WHERE Role='driver'{filter_clause}", params)
         elif user_type == 'manager':
-            data = execute_read(f"SELECT user_id AS id, CONCAT(First_name, ' ', Last_name) AS name, Email AS email, Phone AS phone, Status AS status FROM users WHERE Role='manager'{filter_clause}", params)
+            filter_clause, params = get_branch_filter(prefix=" AND ", table_alias="u")
+            data = execute_read(f"SELECT u.user_id AS id, CONCAT(u.First_name, ' ', u.Last_name) AS name, u.Email AS email, u.Phone AS phone, u.Status AS status, b.branch_name FROM users u LEFT JOIN branches b ON u.branch_id = b.branch_id WHERE u.Role='manager'{filter_clause}", params)
         elif user_type == 'customer':
+            filter_clause, params = get_branch_filter(prefix=" AND ")
             data = execute_read(f"SELECT user_id AS id, CONCAT(First_name, ' ', Last_name) AS name, Email AS email, Phone AS phone, Status AS status FROM users WHERE Role='customer'{filter_clause}", params)
         elif user_type == 'accountant':
+            filter_clause, params = get_branch_filter(prefix=" AND ")
             data = execute_read(f"SELECT user_id AS id, CONCAT(First_name, ' ', Last_name) AS name, Email AS email, Phone AS phone, Status AS status FROM users WHERE Role='accountant'{filter_clause}", params)
     except Exception as e:
         flash(f"Error loading users: {str(e)}", "error")
@@ -261,7 +264,12 @@ def edit_user(id):
         user_record = execute_read("SELECT * FROM users WHERE User_id=%s", (id,), fetchall=False)
         if not user_record:
             flash("User not found", "error")
-            return redirect("/users?type=manager") 
+            return redirect("/users?type=manager")
+            
+        if user_record['Role'] == 'accountant':
+            flash("Accountant details cannot be edited.", "error")
+            return redirect("/users?type=accountant")
+            
         branches = execute_read("SELECT * FROM branches")
     except Exception as e:
         flash(f"Error loading user: {str(e)}", "error")
@@ -283,6 +291,11 @@ def delete_user(id):
 
         if user_record:
             role = user_record['Role']
+            
+            if role == 'accountant':
+                flash("Accountant records cannot be deleted.", "error")
+                return redirect("/users?type=accountant")
+                
             execute_query("DELETE FROM users WHERE User_id=%s", (id,))
             flash("User deleted successfully.", "success")
             return redirect(f"/users?type={role}")

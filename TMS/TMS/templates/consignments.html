@@ -9,8 +9,10 @@
     {% endif %}
 </div>
 
+{% include "components/search_bar.html" %}
+
 <div class="table-container">
-<table>
+<table id="dataTable">
 
 <tr>
 <th>ID</th>
@@ -50,15 +52,15 @@
 
 </tr>
 
-{% else %}
-<tr>
-    <td colspan="6">
-        {% include "components/empty_state.html" %}
-    </td>
-</tr>
 {% endfor %}
 
 </table>
+
+{% if not consignments %}
+<div style="grid-column: 1 / -1;">
+    {% include "components/empty_state.html" %}
+</div>
+{% endif %}
 </div>
 
 {% endblock %}

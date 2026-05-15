@@ -19,12 +19,24 @@ def book_delivery():
         customer_id = session.get("user_id")
         
         try:
+            distance_type = "local" if pickup.strip().lower() == drop.strip().lower() else "interstate"
+            weight_val = float(weight) if weight else 0
+            fragile = "fragile" in pkg_type.lower() or "glass" in pkg_type.lower()
+            
+            base_charge = 300 if distance_type == "local" else 1200
+            handling_charge = base_charge * 0.10 if fragile else 0
+            extra_weight = ((weight_val - 50) * 15) if weight_val > 50 else 0
+            
+            subtotal = base_charge + handling_charge + extra_weight
+            gst = subtotal * 0.18
+            total = subtotal + gst
+            
             query = """INSERT INTO bookings 
-                       (customer_id, pickup_location, drop_location, package_type, package_weight, delivery_date, contact_info, branch_id, booking_date) 
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CURDATE())"""
-            execute_query(query, (customer_id, pickup, drop, pkg_type, weight, date, contact, session.get('branch_id') or 1))
-            flash("Booking created successfully!", "success")
-            return redirect("/my_bookings")
+                       (customer_id, pickup_location, drop_location, package_type, package_weight, delivery_date, contact_info, branch_id, booking_date, total_amount) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CURDATE(), %s)"""
+            booking_id = execute_query(query, (customer_id, pickup, drop, pkg_type, weight, date, contact, session.get('branch_id') or 1, total))
+            
+            return redirect(f"/checkout/{booking_id}")
         except Exception as e:
             flash(f"Error creating booking: {str(e)}", "error")
             return redirect("/book")
@@ -100,6 +112,77 @@ def estimate_pricing():
 @role_required('customer')
 def customer_pricing():
     return render_template("customer_pricing.html")
+
+@booking_bp.route("/checkout/<int:booking_id>")
+@login_required
+@role_required('customer')
+def checkout(booking_id):
+    customer_id = session.get("user_id")
+    try:
+        booking = execute_read("SELECT * FROM bookings WHERE booking_id=%s AND customer_id=%s", (booking_id, customer_id), fetchall=False)
+        if not booking:
+            flash("Booking not found.", "error")
+            return redirect("/customer_dashboard")
+            
+        if booking['shipment_status'] != 'Pending':
+            flash("This booking has already been processed.", "info")
+            return redirect("/my_bookings")
+            
+        booking['total_amount'] = float(booking['total_amount'])
+            
+        return render_template("checkout.html", booking=booking)
+    except Exception as e:
+        flash(f"Error loading checkout: {str(e)}", "error")
+        return redirect("/customer_dashboard")
+
+import uuid
+
+@booking_bp.route("/process_payment/<int:booking_id>", methods=["POST"])
+@login_required
+@role_required('customer')
+def process_payment(booking_id):
+    customer_id = session.get("user_id")
+    payment_method = request.form.get("payment_method")
+    
+    try:
+        booking = execute_read("SELECT * FROM bookings WHERE booking_id=%s AND customer_id=%s", (booking_id, customer_id), fetchall=False)
+        if not booking or booking['shipment_status'] != 'Pending':
+            flash("Invalid booking.", "error")
+            return redirect("/customer_dashboard")
+            
+        total_amount = float(booking['total_amount'])
+        
+        if payment_method == 'cash':
+            advance = total_amount * 0.20
+            remaining = total_amount - advance
+            status = 'COD Pending'
+            ship_status = 'Advance Paid - COD Pending'
+        else:
+            advance = total_amount
+            remaining = 0
+            status = 'Completed'
+            ship_status = 'Approved'
+            
+        transaction_ref = f"TXN-{str(uuid.uuid4())[:8].upper()}"
+        
+        # Insert payment
+        pay_query = """INSERT INTO payments 
+                       (Booking_id, Amount, advance_paid, remaining_amount, method, Payment_date, Reference_no, status, branch_id)
+                       VALUES (%s, %s, %s, %s, %s, CURDATE(), %s, %s, %s)"""
+        execute_query(pay_query, (booking_id, total_amount, advance, remaining, payment_method, transaction_ref, status, booking['branch_id']))
+        
+        # Update booking
+        book_query = """UPDATE bookings 
+                        SET advance_paid=%s, remaining_amount=%s, shipment_status=%s 
+                        WHERE booking_id=%s"""
+        execute_query(book_query, (advance, remaining, ship_status, booking_id))
+        
+        flash("Payment processed successfully!", "success")
+        return redirect("/my_payments")
+        
+    except Exception as e:
+        flash(f"Payment processing failed: {str(e)}", "error")
+        return redirect(f"/checkout/{booking_id}")
 
 @booking_bp.route("/my_bookings")
 @login_required

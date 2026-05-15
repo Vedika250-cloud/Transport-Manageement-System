@@ -150,6 +150,8 @@ def my_payments():
             SELECT 
                 p.Payment_id AS payment_id, 
                 p.Amount AS amount, 
+                p.advance_paid,
+                p.remaining_amount,
                 p.method AS payment_method, 
                 p.status AS status,
                 p.Reference_no AS reference_no,
@@ -166,3 +168,54 @@ def my_payments():
         flash(f"Error loading your payments: {str(e)}", "error")
         payments_data = []
     return render_template("my_payments.html", payments=payments_data)
+
+@payment_bp.route("/invoice/<int:payment_id>")
+@login_required
+@role_required('customer')
+def invoice(payment_id):
+    customer_id = session.get("user_id")
+    try:
+        payment = execute_read('''
+            SELECT p.*, b.*, CONCAT(u.First_name, ' ', u.Last_name) as customer_name, u.Email, u.Phone
+            FROM payments p
+            JOIN bookings b ON p.Booking_id = b.booking_id
+            JOIN users u ON b.customer_id = u.user_id
+            WHERE p.Payment_id = %s AND b.customer_id = %s
+        ''', (payment_id, customer_id), fetchall=False)
+        
+        if not payment:
+            flash("Invoice not found or unauthorized.", "error")
+            return redirect("/my_payments")
+            
+        payment['total_amount'] = float(payment['total_amount'])
+        payment['advance_paid'] = float(payment['advance_paid'])
+        payment['remaining_amount'] = float(payment['remaining_amount'])
+            
+        return render_template("invoice.html", payment=payment)
+    except Exception as e:
+        flash(f"Error loading invoice: {str(e)}", "error")
+        return redirect("/my_payments")
+
+@payment_bp.route("/mark_cod_completed/<int:payment_id>")
+@login_required
+@role_required('manager', 'admin')
+def mark_cod_completed(payment_id):
+    try:
+        b_filter = " AND p.branch_id = %s" if session.get('role') == 'manager' else ""
+        params = (payment_id,)
+        if session.get('role') == 'manager':
+            params += (session.get('branch_id'),)
+            
+        payment = execute_read(f"SELECT * FROM payments p WHERE p.Payment_id=%s{b_filter}", params, fetchall=False)
+        if not payment or payment['status'] != 'COD Pending':
+            flash("Invalid payment or already completed.", "error")
+            return redirect("/payments")
+            
+        execute_query("UPDATE payments SET advance_paid=Amount, remaining_amount=0, status='Completed' WHERE Payment_id=%s", (payment_id,))
+        if payment['Booking_id']:
+            execute_query("UPDATE bookings SET advance_paid=total_amount, remaining_amount=0, shipment_status='Delivered' WHERE booking_id=%s", (payment['Booking_id'],))
+            
+        flash("COD Payment marked as Completed.", "success")
+    except Exception as e:
+        flash(f"Error updating payment: {str(e)}", "error")
+    return redirect("/payments")

@@ -1,0 +1,6 @@
+<div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-width: 400px; box-shadow: var(--shadow-sm);">
+    <span style="font-size: 16px; color: var(--text-muted);">
+        <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+    </span>
+    <input type="text" id="{{ search_id | default('tableSearch') }}" placeholder="{{ placeholder | default('Search records...') }}" style="width: 100%; border: none; background: transparent; font-size: 14px; color: var(--text-main); outline: none;" onkeyup="filterTable('{{ search_id | default('tableSearch') }}', '{{ table_id | default('dataTable') }}')" />
+</div>

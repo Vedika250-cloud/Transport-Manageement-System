@@ -2,100 +2,581 @@
 
 {% block content %}
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<style>
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-light);
+    }
+
+    .avatar-upload-zone {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 20px auto;
+        border-radius: 50%;
+        border: 3px dashed transparent;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-upload-zone.dragover {
+        border-color: var(--accent);
+        transform: scale(1.05);
+        background: var(--primary-lighter);
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: white;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        border: 3px solid white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: filter 0.3s ease;
+    }
+
+    .avatar-fallback {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        color: white;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .avatar-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-container:hover .avatar-image {
+        filter: brightness(0.7);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .user-info-text {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .user-info-text h3 {
+        font-size: 26px;
+        color: var(--text-main);
+        font-weight: 700;
+        margin: 0 0 8px 0;
+    }
+
+    .profile-details-grid {
+        background: var(--primary-lighter);
+        border-radius: var(--radius-md);
+        padding: 25px;
+        border: 1px solid var(--border-light);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label { color: var(--text-muted); font-weight: 500; font-size: 14px; }
+    .detail-value { color: var(--text-main); font-weight: 600; }
+
+    /* Spinner */
+    .upload-spinner {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        z-index: 20;
+    }
+    .spinner-icon {
+        width: 30px; height: 30px;
+        border: 3px solid var(--border-light);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Custom Toast */
+    .custom-toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        padding: 15px 25px;
+        border-radius: var(--radius-sm);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        z-index: 9999;
+    }
+    .custom-toast.show { transform: translateY(0); opacity: 1; }
+    .custom-toast.success { border-left: 4px solid #10b981; }
+    .custom-toast.error { border-left: 4px solid #ef4444; }
+
+    /* Camera Modal */
+    .camera-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    .camera-modal {
+        background: white;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        text-align: center;
+        max-width: 90%;
+        width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .video-container {
+        position: relative;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+        margin-bottom: 20px;
+        aspect-ratio: 4/3;
+    }
+    #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
+    
+    .camera-actions { display: flex; gap: 12px; justify-content: center; }
+    
+    /* Buttons */
+    .btn { padding: 10px 20px; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+</style>
+
+<div class="profile-header">
     <h2>My Profile</h2>
 </div>
 
-<div class="form-container" style="max-width: 600px; padding: 50px;">
+<div class="profile-card">
     
-    <div style="text-align: center; margin-bottom: 30px;">
-        <div style="position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto;">
+    <!-- Drag & Drop Zone -->
+    <div class="avatar-upload-zone" id="dropZone">
+        <div class="avatar-container" onclick="document.getElementById('profile_pic_input').click()">
             {% if session.get('profile_pic') %}
-            <img src="{{ url_for('static', filename='uploads/profiles/' + session['profile_pic']) }}" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-md); border: 3px solid white; background: white;">
+                <img id="profileImagePreview" src="{{ url_for('static', filename='uploads/profiles/' + session['profile_pic']) }}" alt="Profile Picture" class="avatar-image">
+                <div id="profileImagePreviewFallback" class="avatar-fallback" style="display: none;">👤</div>
             {% else %}
-            <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); border: 3px solid white;">
-                <span style="font-size: 40px; color: white;">👤</span>
-            </div>
+                <div id="profileImagePreviewFallback" class="avatar-fallback">👤</div>
+                <img id="profileImagePreview" src="" alt="Profile Picture" class="avatar-image" style="display: none;">
             {% endif %}
             
-            <!-- Upload File Button -->
-            <form action="/profile" method="POST" enctype="multipart/form-data" id="profilePicForm" style="margin: 0;">
-                <label for="profile_pic" style="position: absolute; bottom: -5px; right: -15px; background: var(--accent); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); z-index: 2;" title="Upload File">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                </label>
-                <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;" onchange="document.getElementById('profilePicForm').submit();">
-            </form>
+            <div class="avatar-overlay">
+                <i data-lucide="image" style="margin-bottom: 5px;"></i>
+                Drop or Click
+            </div>
 
-            <!-- Take Photo Button -->
-            <button type="button" onclick="openCameraModal()" style="position: absolute; bottom: -5px; left: -15px; background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; outline: none; box-shadow: var(--shadow-sm); z-index: 2;" title="Take Photo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <!-- Loading Spinner -->
+            <div class="upload-spinner" id="uploadSpinner">
+                <div class="spinner-icon"></div>
+            </div>
+        </div>
+        <input type="file" id="profile_pic_input" accept="image/jpeg, image/png, image/webp" style="display: none;">
+    </div>
+
+    <!-- Explicit Action Buttons -->
+    <div class="action-buttons" id="mainActionButtons">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('profile_pic_input').click()">
+            <i data-lucide="upload-cloud" style="width: 16px; height: 16px; margin-right: 8px;"></i> Upload
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="openCameraModal()">
+            <i data-lucide="camera" style="width: 16px; height: 16px; margin-right: 8px;"></i> Camera
+        </button>
+        {% if session.get('profile_pic') %}
+        <button type="button" class="btn btn-danger" id="removePhotoBtn" onclick="removePhoto()">
+            <i data-lucide="trash-2" style="width: 16px; height: 16px; margin-right: 8px;"></i> Remove
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Save Changes Preview Buttons -->
+    <div id="saveChangesContainer" style="display: none; text-align: center; margin-bottom: 30px;">
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="submitPendingUpload()" style="width: 150px;">
+                <i data-lucide="save" style="width: 16px; height: 16px; margin-right: 8px;"></i> Save Changes
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="cancelPreview()" style="width: 150px;">
+                Cancel
             </button>
         </div>
-        <h3 style="font-size: 24px; color: var(--text-main); font-weight: 700; margin-bottom: 5px;">{{ user.First_name }} {{ user.Last_name }}</h3>
+    </div>
+
+    <div class="user-info-text">
+        <h3>{{ user.First_name }} {{ user.Last_name }}</h3>
         <span class="status {% if user.Status == 'active' %}status-active{% else %}status-inactive{% endif %}" style="padding: 4px 12px; font-size: 12px;">{{ user.Status|title }}</span>
     </div>
 
-    <div style="background: var(--primary-lighter); border-radius: var(--radius-md); padding: 25px; border: 1px solid var(--border-light);">
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-            <span style="color: var(--text-muted); font-weight: 500; font-size: 14px;">Role</span>
-            <span style="color: var(--text-main); font-weight: 600; text-transform: capitalize;">{{ user.Role }}</span>
+    <div class="profile-details-grid">
+        <div class="detail-row">
+            <span class="detail-label">Role</span>
+            <span class="detail-value" style="text-transform: capitalize;">{{ user.Role }}</span>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-            <span style="color: var(--text-muted); font-weight: 500; font-size: 14px;">Email Configuration</span>
-            <span style="color: var(--text-main); font-weight: 600;">{{ user.Email }}</span>
+        {% if user.Role == 'manager' %}
+        <div class="detail-row">
+            <span class="detail-label">Assigned Branch</span>
+            <span class="detail-value">
+                {% if user.branch_name %}
+                    <span class="badge badge-info">{{ user.branch_name }}</span>
+                {% else %}
+                    <span class="badge badge-secondary">Unassigned</span>
+                {% endif %}
+            </span>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid var(--border-light); padding-bottom: 15px;">
-            <span style="color: var(--text-muted); font-weight: 500; font-size: 14px;">Phone Number</span>
-            <span style="color: var(--text-main); font-weight: 600;">{{ user.Phone if user.Phone else 'Not Provided' }}</span>
+        {% endif %}
+        <div class="detail-row">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ user.Email }}</span>
         </div>
-        
-        <div style="display: flex; justify-content: space-between;">
-            <span style="color: var(--text-muted); font-weight: 500; font-size: 14px;">Account Created</span>
-            <span style="color: var(--text-main); font-weight: 600;">{{ user.Created_at.strftime('%Y-%m-%d') if user.Created_at else 'Unknown' }}</span>
+        <div class="detail-row">
+            <span class="detail-label">Phone Number</span>
+            <span class="detail-value">{{ user.Phone if user.Phone else 'Not Provided' }}</span>
         </div>
-
+        <div class="detail-row">
+            <span class="detail-label">Account Created</span>
+            <span class="detail-value">{{ user.Created_at.strftime('%Y-%m-%d') if user.Created_at else 'Unknown' }}</span>
+        </div>
     </div>
-    
-</div>
-
 </div>
 
 <!-- Camera Modal -->
-<div id="cameraModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 90%;">
-        <h3 style="margin-top: 0; color: #333;">Take Profile Picture</h3>
-        <video id="cameraVideo" width="320" height="240" autoplay style="border-radius: 8px; background: #000; display: block; margin: 0 auto 15px auto;"></video>
-        <canvas id="cameraCanvas" style="display: none;"></canvas>
-        <div style="display: flex; gap: 10px; justify-content: center;">
-            <button type="button" onclick="capturePhoto()" style="padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Capture Image</button>
-            <button type="button" onclick="closeCameraModal()" style="padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Cancel</button>
+<div id="cameraModal" class="camera-modal-overlay">
+    <div class="camera-modal">
+        <h3 style="margin-top: 0; color: var(--text-main); margin-bottom: 20px;">Take Profile Picture</h3>
+        <div class="video-container">
+            <video id="cameraVideo" autoplay playsinline></video>
         </div>
-        
-        <!-- Form to submit captured photo -->
-        <form action="/profile" method="POST" id="captureForm" style="display: none;">
-            <input type="hidden" name="captured_image" id="captured_image_input">
-        </form>
+        <canvas id="cameraCanvas" style="display: none;"></canvas>
+        <div class="camera-actions">
+            <button type="button" class="btn btn-primary" onclick="capturePhoto()">Capture Image</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCameraModal()">Cancel</button>
+        </div>
     </div>
 </div>
 
+<!-- Custom Toast Container -->
+<div id="customToast" class="custom-toast">
+    <i id="toastIcon" data-lucide="check-circle" style="color: #10b981;"></i>
+    <span id="toastMessage" style="font-weight: 500; color: var(--text-main);">Success</span>
+</div>
+
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        lucide.createIcons();
+    });
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('profile_pic_input');
+    const uploadSpinner = document.getElementById('uploadSpinner');
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    let pendingFile = null;
+    let pendingBase64 = null;
+    
+    // Store the original src to revert to if user cancels
+    const originalImageEl = document.getElementById('profileImagePreview');
+    let originalAvatarUrl = originalImageEl.style.display !== 'none' ? originalImageEl.src : null;
+
+    // Drag & Drop Events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        if(files.length) handleFiles(files[0]);
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        if(this.files.length) handleFiles(this.files[0]);
+    });
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('customToast');
+        const icon = document.getElementById('toastIcon');
+        document.getElementById('toastMessage').innerText = message;
+        
+        toast.className = 'custom-toast'; // Reset
+        toast.classList.add('show', type);
+        
+        if(type === 'success') {
+            icon.setAttribute('data-lucide', 'check-circle');
+            icon.style.color = '#10b981';
+        } else {
+            icon.setAttribute('data-lucide', 'alert-circle');
+            icon.style.color = '#ef4444';
+        }
+        lucide.createIcons();
+
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function handleFiles(file) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            showToast('Invalid file type. Only JPG, PNG, WEBP allowed.', 'error');
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            showToast('File size exceeds 5MB limit.', 'error');
+            return;
+        }
+
+        // Generate Preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            setPreview(e.target.result);
+        }
+        reader.readAsDataURL(file);
+
+        pendingFile = file;
+        pendingBase64 = null;
+        showSaveChangesUI();
+    }
+
+    function setPreview(srcUrl) {
+        const imgEl = document.getElementById('profileImagePreview');
+        const fallbackEl = document.getElementById('profileImagePreviewFallback');
+        if (fallbackEl) fallbackEl.style.display = 'none';
+        imgEl.src = srcUrl;
+        imgEl.style.display = 'block';
+    }
+
+    function showSaveChangesUI() {
+        document.getElementById('mainActionButtons').style.display = 'none';
+        document.getElementById('saveChangesContainer').style.display = 'block';
+    }
+
+    function cancelPreview() {
+        pendingFile = null;
+        pendingBase64 = null;
+        fileInput.value = ''; // clear input
+        
+        const imgEl = document.getElementById('profileImagePreview');
+        const fallbackEl = document.getElementById('profileImagePreviewFallback');
+        
+        if (originalAvatarUrl) {
+            imgEl.src = originalAvatarUrl;
+            imgEl.style.display = 'block';
+            if (fallbackEl) fallbackEl.style.display = 'none';
+        } else {
+            imgEl.style.display = 'none';
+            if (fallbackEl) fallbackEl.style.display = 'flex';
+        }
+        
+        document.getElementById('saveChangesContainer').style.display = 'none';
+        document.getElementById('mainActionButtons').style.display = 'flex';
+    }
+
+    function submitPendingUpload() {
+        if (!pendingFile && !pendingBase64) return;
+        
+        const formData = new FormData();
+        if (pendingFile) {
+            formData.append('profile_pic', pendingFile);
+        } else if (pendingBase64) {
+            formData.append('captured_image', pendingBase64);
+        }
+        
+        submitUploadForm(formData);
+    }
+
+    function submitUploadForm(formData) {
+        uploadSpinner.style.display = 'flex';
+        
+        fetch('/profile', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            uploadSpinner.style.display = 'none';
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Update original URL to new success URL
+                originalAvatarUrl = `/static/uploads/profiles/${data.filename}`;
+                pendingFile = null;
+                pendingBase64 = null;
+                fileInput.value = '';
+                
+                document.getElementById('saveChangesContainer').style.display = 'none';
+                document.getElementById('mainActionButtons').style.display = 'flex';
+                
+                updateAvatarUI(data.filename);
+            } else {
+                showToast(data.error || 'Upload failed', 'error');
+            }
+        })
+        .catch(error => {
+            uploadSpinner.style.display = 'none';
+            showToast('Network error during upload', 'error');
+            console.error(error);
+        });
+    }
+
+    function removePhoto() {
+        if(!confirm("Are you sure you want to remove your profile picture?")) return;
+        
+        const formData = new FormData();
+        formData.append('action', 'remove');
+        
+        uploadSpinner.style.display = 'flex';
+        fetch('/profile', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            uploadSpinner.style.display = 'none';
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Failed to remove', 'error');
+            }
+        });
+    }
+
+    function updateAvatarUI(filename) {
+        const newUrl = `/static/uploads/profiles/${filename}`;
+        
+        // Ensure "Remove" button exists in main action buttons
+        if (!document.getElementById('removePhotoBtn')) {
+            const btnGroup = document.getElementById('mainActionButtons');
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger';
+            removeBtn.id = 'removePhotoBtn';
+            removeBtn.onclick = removePhoto;
+            removeBtn.innerHTML = '<i data-lucide="trash-2" style="width: 16px; height: 16px; margin-right: 8px;"></i> Remove';
+            btnGroup.appendChild(removeBtn);
+            lucide.createIcons();
+        }
+
+        const navbarImgs = document.querySelectorAll('.user img, .navbar img, .sidebar img');
+        navbarImgs.forEach(img => {
+            if (img.src && img.src.includes('uploads/profiles')) {
+                img.src = newUrl;
+            }
+        });
+        
+        const userDiv = document.querySelector('.user');
+        if (userDiv) {
+            const fallbackDiv = userDiv.querySelector('div');
+            if (fallbackDiv && !userDiv.querySelector('img')) {
+                const newImg = document.createElement('img');
+                newImg.src = newUrl;
+                newImg.alt = "Avatar";
+                newImg.style.cssText = "width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-light);";
+                userDiv.insertBefore(newImg, fallbackDiv);
+                fallbackDiv.remove();
+            }
+        }
+    }
+
+    // --- Camera Logic ---
     let videoStream = null;
 
     async function openCameraModal() {
         const modal = document.getElementById('cameraModal');
         const video = document.getElementById('cameraVideo');
-        
         modal.style.display = 'flex';
         
         try {
-            videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
             video.srcObject = videoStream;
         } catch (err) {
-            console.error("Error accessing camera: ", err);
-            alert("Could not access camera. Please allow camera permissions.");
+            console.error("Camera error: ", err);
+            showToast("Could not access camera. Please allow permissions.", 'error');
             closeCameraModal();
         }
     }
@@ -105,9 +586,7 @@
         modal.style.display = 'none';
         
         if (videoStream) {
-            videoStream.getTracks().forEach(track => {
-                track.stop();
-            });
+            videoStream.getTracks().forEach(track => track.stop());
             videoStream = null;
         }
     }
@@ -119,22 +598,18 @@
         const canvas = document.getElementById('cameraCanvas');
         const context = canvas.getContext('2d');
         
-        // Set canvas to match video dimensions
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
-        // Draw the current video frame to the canvas
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Get the image data
-        const imageData = canvas.toDataURL('image/png');
+        const imageData = canvas.toDataURL('image/jpeg', 0.9);
         
-        // Set to hidden input and submit
-        document.getElementById('captured_image_input').value = imageData;
-        document.getElementById('captureForm').submit();
-        
-        // Stop stream
         closeCameraModal();
+        
+        setPreview(imageData);
+        pendingBase64 = imageData;
+        pendingFile = null;
+        showSaveChangesUI();
     }
 </script>
 

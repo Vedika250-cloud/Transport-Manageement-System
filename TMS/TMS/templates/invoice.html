@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-header" style="justify-content: space-between;">
+    <h2><i data-lucide="file-text"></i> Payment Invoice</h2>
+    <button class="btn" onclick="window.print()" style="padding: 10px 20px;"><i data-lucide="printer" style="margin-right: 8px;"></i> Print Invoice</button>
+</div>
+
+<div class="invoice-container" style="background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; color: #333; font-family: 'Inter', sans-serif;">
+    
+    <!-- Invoice Header -->
+    <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 30px;">
+        <div>
+            <h1 style="color: var(--primary-color); font-size: 28px; margin: 0 0 5px 0;">TMS Logistics</h1>
+            <p style="margin: 0; color: #666; font-size: 14px;">123 Transport Avenue, Logistics City</p>
+            <p style="margin: 0; color: #666; font-size: 14px;">support@tms.local | 1800-TMS-HELP</p>
+        </div>
+        <div style="text-align: right;">
+            <h2 style="font-size: 24px; margin: 0 0 5px 0; color: #333; text-transform: uppercase; letter-spacing: 2px;">INVOICE</h2>
+            <p style="margin: 0; font-size: 14px;"><strong>Invoice No:</strong> {{ payment.Reference_no }}</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Date:</strong> {{ payment.Payment_date }}</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Status:</strong> 
+                <span style="color: {% if payment.status == 'Completed' %}green{% elif payment.status == 'COD Pending' %}orange{% else %}red{% endif %}; font-weight: 600;">{{ payment.status }}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Customer Details -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        <div style="width: 48%;">
+            <h4 style="text-transform: uppercase; color: #999; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px;">Billed To:</h4>
+            <p style="margin: 0; font-weight: 600; font-size: 15px;">{{ payment.customer_name }}</p>
+            <p style="margin: 0; font-size: 14px; color: #555;">{{ payment.Email }}</p>
+            <p style="margin: 0; font-size: 14px; color: #555;">{{ payment.Phone }}</p>
+        </div>
+        <div style="width: 48%;">
+            <h4 style="text-transform: uppercase; color: #999; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px;">Shipment Details:</h4>
+            <p style="margin: 0; font-size: 14px;"><strong>Booking ID:</strong> #{{ payment.booking_id }}</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Route:</strong> {{ payment.pickup_location }} to {{ payment.drop_location }}</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Package:</strong> {{ payment.package_type }} ({{ payment.package_weight }} kg)</p>
+        </div>
+    </div>
+
+    <!-- Payment Breakdown -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 12px; text-align: left; font-size: 14px; color: #555;">Description</th>
+                <th style="padding: 12px; text-align: right; font-size: 14px; color: #555;">Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 14px;">Total Shipment Charge (Inclusive of Base, Handling & Extra Weight)</td>
+                <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px;">{{ (payment.total_amount / 1.18)|round(2) }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #eee; font-size: 14px;">GST / Service Fee (18%)</td>
+                <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-size: 14px;">{{ (payment.total_amount - (payment.total_amount / 1.18))|round(2) }}</td>
+            </tr>
+            <tr style="background: #f8f9fa; font-weight: 600;">
+                <td style="padding: 12px; font-size: 15px; border-bottom: 2px solid #e0e0e0;">Gross Total</td>
+                <td style="padding: 12px; text-align: right; font-size: 15px; border-bottom: 2px solid #e0e0e0;">{{ payment.total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Payment Summary -->
+    <div style="display: flex; justify-content: flex-end;">
+        <table style="width: 300px; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 8px; font-size: 14px; color: #555;">Paid Online ({{ payment.method|upper }}):</td>
+                <td style="padding: 8px; text-align: right; font-weight: 600; font-size: 14px;">₹ {{ payment.advance_paid }}</td>
+            </tr>
+            <tr style="border-bottom: 2px solid #333;">
+                <td style="padding: 8px; font-size: 14px; color: #e74c3c;">Pending / Pay on Delivery:</td>
+                <td style="padding: 8px; text-align: right; font-weight: 600; font-size: 14px; color: #e74c3c;">₹ {{ payment.remaining_amount }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Footer Note -->
+    <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999;">
+        <p>This is a computer-generated invoice and does not require a physical signature.</p>
+        <p>Thank you for choosing TMS Logistics.</p>
+    </div>
+
+</div>
+
+<!-- Print Styles -->
+<style>
+@media print {
+    body * { visibility: hidden; }
+    .invoice-container, .invoice-container * { visibility: visible; }
+    .invoice-container { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; padding: 20px; }
+    .content-header, .sidebar { display: none; }
+    .main { margin-left: 0 !important; }
+}
+</style>
+{% endblock %}

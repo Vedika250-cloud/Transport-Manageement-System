@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-header">
+    <h2><i data-lucide="lock"></i> Secure Checkout</h2>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 40px;">
+    <!-- Payment Selection -->
+    <div class="payment-selection" style="background: var(--bg-card); padding: 30px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 18px; color: var(--text-main); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
+            Select Payment Method
+        </h3>
+        
+        <form id="paymentForm" action="/process_payment/{{ booking.booking_id }}" method="POST">
+            <div class="payment-options" style="display: flex; flex-direction: column; gap: 15px;">
+                
+                <label class="payment-method-label" style="display: flex; align-items: center; padding: 15px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <input type="radio" name="payment_method" value="upi" required onchange="updateSummary('upi')" style="margin-right: 15px; accent-color: var(--primary-color); width: 18px; height: 18px;">
+                    <i data-lucide="smartphone" style="margin-right: 15px; color: var(--text-main);"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">UPI (GPay, PhonePe, Paytm)</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Pay securely using any UPI app</div>
+                    </div>
+                </label>
+
+                <label class="payment-method-label" style="display: flex; align-items: center; padding: 15px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <input type="radio" name="payment_method" value="card" onchange="updateSummary('card')" style="margin-right: 15px; accent-color: var(--primary-color); width: 18px; height: 18px;">
+                    <i data-lucide="credit-card" style="margin-right: 15px; color: var(--text-main);"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">Credit / Debit Card</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Visa, Mastercard, RuPay</div>
+                    </div>
+                </label>
+
+                <label class="payment-method-label" style="display: flex; align-items: center; padding: 15px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <input type="radio" name="payment_method" value="net_banking" onchange="updateSummary('net_banking')" style="margin-right: 15px; accent-color: var(--primary-color); width: 18px; height: 18px;">
+                    <i data-lucide="landmark" style="margin-right: 15px; color: var(--text-main);"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">Net Banking</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">All major banks supported</div>
+                    </div>
+                </label>
+
+                <label class="payment-method-label" style="display: flex; align-items: center; padding: 15px 20px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                    <input type="radio" name="payment_method" value="cash" onchange="updateSummary('cash')" style="margin-right: 15px; accent-color: var(--primary-color); width: 18px; height: 18px;">
+                    <i data-lucide="banknote" style="margin-right: 15px; color: var(--text-main);"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">Cash on Delivery (COD)</div>
+                        <div style="font-size: 13px; color: var(--warning-color); font-weight: 500;">Requires 20% advance payment online</div>
+                    </div>
+                </label>
+
+            </div>
+
+            <!-- Simulated Payment Gateway Loading UI -->
+            <div id="paymentProcessing" style="display: none; text-align: center; margin-top: 30px; padding: 20px; background: var(--bg-app); border-radius: 8px; border: 1px dashed var(--primary-color);">
+                <i data-lucide="loader-2" class="spin" style="width: 32px; height: 32px; color: var(--primary-color); margin-bottom: 10px; animation: spin 1s linear infinite;"></i>
+                <h4 style="color: var(--text-main); margin-bottom: 5px;">Processing Payment securely...</h4>
+                <p style="font-size: 13px; color: var(--text-muted);">Please do not close this window or press back.</p>
+            </div>
+
+            <button type="button" id="payBtn" onclick="simulatePayment()" class="btn" style="width: 100%; justify-content: center; margin-top: 25px; padding: 14px; font-size: 16px; font-weight: 600;" disabled>
+                <i data-lucide="lock" style="width: 18px; margin-right: 8px;"></i> Pay Now
+            </button>
+        </form>
+    </div>
+
+    <!-- Booking & Amount Summary -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="booking-summary" style="background: var(--bg-card); padding: 25px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-top: 4px solid var(--primary-color);">
+            <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                Order Summary
+            </h3>
+            
+            <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-muted);">
+                <div style="margin-bottom: 5px;"><strong>Booking ID:</strong> #{{ booking.booking_id }}</div>
+                <div style="margin-bottom: 5px;"><strong>Route:</strong> {{ booking.pickup_location }} &rarr; {{ booking.drop_location }}</div>
+                <div style="margin-bottom: 5px;"><strong>Package:</strong> {{ booking.package_type }} ({{ booking.package_weight }} kg)</div>
+            </div>
+
+            <div style="background: var(--bg-app); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">
+                    <span>Total Amount</span>
+                    <span style="font-weight: 600; color: var(--text-main);">₹ {{ booking.total_amount }}</span>
+                </div>
+                
+                <div id="advance-row" style="display: none; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: var(--warning-color);">
+                    <span>Required Advance (20%)</span>
+                    <span style="font-weight: 600;">₹ {{ (booking.total_amount * 0.2)|round(2) }}</span>
+                </div>
+
+                <div id="remaining-row" style="display: none; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <span>Pay on Delivery</span>
+                    <span style="font-weight: 600; color: var(--text-main);">₹ {{ (booking.total_amount * 0.8)|round(2) }}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: var(--primary-color); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <span>Amount to Pay</span>
+                    <span id="payable-amount">₹ {{ booking.total_amount }}</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                <i data-lucide="shield-check" style="width: 14px; color: var(--success-color);"></i> Payments are 100% secure and encrypted.
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.payment-method-label:hover { border-color: var(--primary-color) !important; background: var(--bg-app); }
+input[type="radio"]:checked + i + div { color: var(--primary-color); }
+input[type="radio"]:checked { filter: hue-rotate(240deg); }
+</style>
+
+<script>
+    const totalAmount = {{ booking.total_amount }};
+    const advanceAmount = {{ (booking.total_amount * 0.2)|round(2) }};
+    
+    function updateSummary(method) {
+        document.getElementById('payBtn').disabled = false;
+        
+        // Reset borders
+        document.querySelectorAll('.payment-method-label').forEach(el => {
+            el.style.borderColor = 'var(--border-color)';
+        });
+        
+        // Highlight selected
+        const selectedLabel = document.querySelector(`input[value="${method}"]`).parentElement;
+        selectedLabel.style.borderColor = 'var(--primary-color)';
+        
+        if (method === 'cash') {
+            document.getElementById('advance-row').style.display = 'flex';
+            document.getElementById('remaining-row').style.display = 'flex';
+            document.getElementById('payable-amount').innerText = '₹ ' + advanceAmount;
+        } else {
+            document.getElementById('advance-row').style.display = 'none';
+            document.getElementById('remaining-row').style.display = 'none';
+            document.getElementById('payable-amount').innerText = '₹ ' + totalAmount;
+        }
+    }
+
+    function simulatePayment() {
+        const method = document.querySelector('input[name="payment_method"]:checked');
+        if(!method) return;
+
+        document.getElementById('payBtn').style.display = 'none';
+        document.querySelectorAll('.payment-options').forEach(el => el.style.opacity = '0.5');
+        document.querySelectorAll('input[type="radio"]').forEach(el => el.disabled = true);
+        
+        document.getElementById('paymentProcessing').style.display = 'block';
+
+        // Simulate network delay for verification
+        setTimeout(() => {
+            document.getElementById('paymentForm').submit();
+        }, 2500);
+    }
+</script>
+{% endblock %}

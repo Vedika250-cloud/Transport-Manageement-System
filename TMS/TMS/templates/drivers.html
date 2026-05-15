@@ -2,48 +2,64 @@
 
 {% block content %}
 
-<h2>👨‍✈️ Drivers</h2>
+<div class="content-header">
+    <h2>👨‍✈️ Drivers</h2>
+    {% if session.role in ['admin', 'manager'] %}
+    <a class="btn" href="/add_driver"><i data-lucide="plus"></i> Add Driver</a>
+    {% endif %}
+</div>
 
-{% if session.role in ['admin', 'manager'] %}
-<a class="btn" href="/add_driver">+ Add Driver</a>
-{% endif %}
+{% include "components/search_bar.html" %}
 
 <div class="table-container">
-<table>
+<table id="dataTable">
 
 <tr>
 <th>ID</th>
 <th>Name</th>
 <th>License</th>
 <th>Phone</th>
-<th>Status</th>
+<th class="text-center">Status</th>
 {% if session.role in ['admin', 'manager'] %}
-<th>Action</th>
+<th class="text-center">Action</th>
 {% endif %}
 </tr>
 
 {% for d in drivers %}
-
 <tr>
 
 <td>{{ d.id }}</td>
 <td>{{ d.name }}</td>
 <td>{{ d.license }}</td>
 <td>{{ d.phone }}</td>
-<td class="status"><span class="status-{{ d.status }}">{{ d.status }}</span></td>
+<td class="text-center">
+    {% if d.status == 'available' or d.status == 'active' %}
+        <span class="badge badge-success">{{ d.status|title }}</span>
+    {% else %}
+        <span class="badge badge-danger">{{ d.status|title }}</span>
+    {% endif %}
+</td>
 
 {% if session.role in ['admin', 'manager'] %}
-<td>
+<td class="text-center">
 <a class="action-btn edit" href="/edit_driver/{{ d.id }}">Edit</a>
-<a class="action-btn delete" href="/delete_driver/{{ d.id }}">Delete</a>
+<a class="action-btn delete" href="/delete_driver/{{ d.id }}" onclick="return confirm('Delete this driver?');">Delete</a>
 </td>
 {% endif %}
 
 </tr>
-
 {% endfor %}
 
 </table>
+
+{% if not drivers %}
+<div style="grid-column: 1 / -1;">
+    {% set icon = "user" %}
+    {% set title = "No drivers found" %}
+    {% set message = "There are currently no drivers in the system." %}
+    {% include "components/empty_state.html" %}
+</div>
+{% endif %}
 </div>
 
 {% endblock %}

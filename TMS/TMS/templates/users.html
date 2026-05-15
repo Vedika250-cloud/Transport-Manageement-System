@@ -46,10 +46,13 @@
             <th>Email</th>
             {% endif %}
             <th>Phone</th>
+            {% if current_type == 'manager' %}
+            <th>Branch</th>
+            {% endif %}
             <th class="text-center">Status</th>
             {% if current_type == 'driver' and session.role == 'manager' %}
             <th class="text-center">Actions</th>
-            {% elif current_type in ['manager', 'accountant'] and session.role == 'admin' %}
+            {% elif current_type == 'manager' and session.role == 'admin' %}
             <th class="text-center">Actions</th>
             {% endif %}
         </tr>
@@ -79,6 +82,9 @@
             {% else %}
             <td>{{ u.email }}</td>
             <td>{{ u.phone if u.phone else 'N/A' }}</td>
+            {% if current_type == 'manager' %}
+            <td><span class="badge badge-info">{{ u.branch_name or 'Unassigned' }}</span></td>
+            {% endif %}
             <td class="text-center">
                 {% if u.status == 'available' or u.status == 'active' %}
                     <span class="badge badge-success">{{ u.status|title }}</span>
@@ -86,7 +92,7 @@
                     <span class="badge badge-danger">{{ u.status|title }}</span>
                 {% endif %}
             </td>
-            {% if session.role == 'admin' %}
+            {% if session.role == 'admin' and current_type != 'accountant' %}
             <td class="text-center">
                 <a class="action-btn edit" href="/edit_user/{{ u.id }}">Edit</a>
                 <a class="action-btn delete" href="/delete_user/{{ u.id }}" onclick="return confirm('Delete this {{ current_type }}?');">Delete</a>

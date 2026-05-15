@@ -41,7 +41,7 @@
         
         {% if recent_bookings %}
         <div class="table-container" style="box-shadow: none; border: 1px solid var(--border-color);">
-            <table>
+            <table id="dataTable">
                 <thead>
                     <tr>
                         <th>Booking ID</th>
@@ -58,7 +58,9 @@
                         <td>{{ b.delivery_date }}</td>
                         <td>
                             {% if b.shipment_status == 'Pending' %}
-                                <span class="badge badge-warning">Pending</span>
+                                <a href="/checkout/{{ b.booking_id }}" class="badge badge-warning" style="text-decoration: none;">Pay Now &rarr;</a>
+                            {% elif b.shipment_status == 'Advance Paid - COD Pending' %}
+                                <span class="badge badge-warning" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37;">COD Pending</span>
                             {% elif b.shipment_status == 'Approved' %}
                                 <span class="badge badge-info">Approved</span>
                             {% elif b.shipment_status == 'In Transit' %}

@@ -27,6 +27,20 @@ app.register_blueprint(branch_bp)
 
 
 # -----------------------------
+# SESSION REFRESH
+# -----------------------------
+@app.before_request
+def refresh_manager_branch():
+    if request.endpoint and not request.endpoint.startswith('static'):
+        if "user_id" in session and session.get("role") == "manager":
+            try:
+                user_db = execute_read("SELECT branch_id FROM users WHERE user_id=%s", (session.get("user_id"),), fetchall=False)
+                if user_db:
+                    session['branch_id'] = user_db.get('branch_id')
+            except:
+                pass
+
+# -----------------------------
 # LOGIN PAGE
 # -----------------------------
 
@@ -504,57 +518,152 @@ def add_vehicle_form():
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
+    import time
+    from PIL import Image
+    import io
+    from flask import jsonify
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    
     if request.method == "POST":
         import base64
         
-        # Handle camera capture base64 upload
-        if 'captured_image' in request.form and request.form['captured_image']:
-            img_data = request.form['captured_image']
-            if img_data.startswith('data:image'):
-                img_data = img_data.split(',')[1]  # Remove data:image/png;base64,
-                
-            img_bytes = base64.b64decode(img_data)
-            new_filename = f"user_{session.get('user_id')}_cam.png"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
-            
-            with open(filepath, 'wb') as f:
-                f.write(img_bytes)
-                
-            # Update database
+        # Helper to process and save the image
+        def process_and_save_image(img_data_bytes, user_id, old_pic):
             try:
-                execute_query("UPDATE users SET Profile_pic=%s WHERE user_id=%s", (new_filename, session.get('user_id')))
-                session['profile_pic'] = new_filename
-                flash("Profile picture updated successfully!", "success")
-            except Exception as e:
-                flash(f"Database error updating profile: {e}", "error")
+                # Open image using Pillow
+                img = Image.open(io.BytesIO(img_data_bytes))
                 
-            return redirect("/profile")
-            
-        # Handle regular file upload
-        elif 'profile_pic' in request.files:
-            file = request.files['profile_pic']
-            if file and file.filename != '':
-                filename = secure_filename(file.filename)
-                # Create unique filename
-                ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-                new_filename = f"user_{session.get('user_id')}.{ext}"
+                # Compress and optimize
+                if img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
                 
+                # Generate unique filename with timestamp to break cache
+                timestamp = int(time.time())
+                new_filename = f"user_{user_id}_{timestamp}.jpg"
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
-                file.save(filepath)
                 
-                # Update database
-                try:
-                    execute_query("UPDATE users SET Profile_pic=%s WHERE user_id=%s", (new_filename, session.get('user_id')))
-                    session['profile_pic'] = new_filename
-                    flash("Profile picture updated successfully!", "success")
-                except Exception as e:
-                    flash(f"Database error updating profile: {e}", "error")
-                    
+                # Save optimized image
+                img.save(filepath, format="JPEG", quality=85, optimize=True)
+                
+                # Delete old profile pic if it exists
+                if old_pic:
+                    old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_pic)
+                    if os.path.exists(old_filepath):
+                        try:
+                            os.remove(old_filepath)
+                        except Exception as e:
+                            app.logger.warning(f"Could not remove old profile pic: {e}")
+                            
+                return new_filename
+            except Exception as e:
+                app.logger.error(f"Image processing error: {e}")
+                return None
+
+        # Fetch current user to get old profile pic
+        try:
+            user = execute_read("SELECT Profile_pic FROM users WHERE user_id=%s", (session.get('user_id'),), fetchall=False)
+            old_pic = user.get('Profile_pic') if user else None
+        except Exception as e:
+            app.logger.error(f"Database error fetching old profile pic: {e}")
+            old_pic = None
+        
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.headers.get('Accept') == 'application/json'
+
+        # Handle removing the profile picture
+        if request.form.get('action') == 'remove':
+            try:
+                if old_pic:
+                    old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_pic)
+                    if os.path.exists(old_filepath):
+                        os.remove(old_filepath)
+                execute_query("UPDATE users SET Profile_pic=NULL WHERE user_id=%s", (session.get('user_id'),))
+                session.pop('profile_pic', None)
+                if is_ajax:
+                    return jsonify({"success": True, "message": "Profile picture removed successfully!", "removed": True})
+                flash("Profile picture removed successfully!", "success")
+                return redirect("/profile")
+            except Exception as e:
+                app.logger.error(f"Error removing profile picture: {e}")
+                if is_ajax:
+                    return jsonify({"success": False, "error": "Failed to remove profile picture."}), 500
+                flash("Failed to remove profile picture.", "error")
                 return redirect("/profile")
 
+        new_filename = None
+        error_msg = None
+
+        try:
+            # Handle camera capture base64 upload
+            if 'captured_image' in request.form and request.form['captured_image']:
+                img_data = request.form['captured_image']
+                if img_data.startswith('data:image'):
+                    img_data = img_data.split(',')[1]
+                    
+                img_bytes = base64.b64decode(img_data)
+                
+                # Size validation for base64
+                if len(img_bytes) > 5 * 1024 * 1024:
+                    error_msg = "Image size exceeds 5MB limit."
+                else:
+                    new_filename = process_and_save_image(img_bytes, session.get('user_id'), old_pic)
+                
+            # Handle regular file upload
+            elif 'profile_pic' in request.files:
+                file = request.files['profile_pic']
+                if file and file.filename != '':
+                    # Size validation
+                    file.seek(0, os.SEEK_END)
+                    size = file.tell()
+                    file.seek(0)
+                    
+                    if size > 5 * 1024 * 1024:
+                        error_msg = "File size exceeds 5MB limit."
+                    else:
+                        # Extension validation
+                        ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+                        if ext not in ['jpg', 'jpeg', 'png', 'webp']:
+                            error_msg = "Unsupported file type. Allowed: jpg, jpeg, png, webp."
+                        else:
+                            img_bytes = file.read()
+                            new_filename = process_and_save_image(img_bytes, session.get('user_id'), old_pic)
+            else:
+                error_msg = "No image data provided."
+                
+            if new_filename:
+                # Update database
+                execute_query("UPDATE users SET Profile_pic=%s WHERE user_id=%s", (new_filename, session.get('user_id')))
+                session['profile_pic'] = new_filename
+                if is_ajax:
+                    return jsonify({"success": True, "message": "Profile picture updated successfully!", "filename": new_filename})
+                flash("Profile picture updated successfully!", "success")
+            else:
+                if not error_msg:
+                    error_msg = "Failed to process image. It might be corrupted."
+                if is_ajax:
+                    return jsonify({"success": False, "error": error_msg}), 400
+                flash(error_msg, "error")
+                
+        except Exception as e:
+            app.logger.error(f"Error updating profile: {e}")
+            if is_ajax:
+                return jsonify({"success": False, "error": "Server error occurred during upload."}), 500
+            flash("An error occurred during upload.", "error")
+            
+        if is_ajax:
+            return jsonify({"success": False, "error": "Unknown error"}), 400
+        return redirect("/profile")
+
     try:
-        user = execute_read("SELECT * FROM users WHERE user_id=%s", (session.get("user_id"),), fetchall=False)
+        user = execute_read("""
+            SELECT u.*, b.branch_name 
+            FROM users u 
+            LEFT JOIN branches b ON u.branch_id = b.branch_id 
+            WHERE u.user_id=%s
+        """, (session.get("user_id"),), fetchall=False)
     except Exception as e:
+        app.logger.error(f"Error loading profile details: {e}")
         flash("Error loading profile details.", "error")
         user = None
     

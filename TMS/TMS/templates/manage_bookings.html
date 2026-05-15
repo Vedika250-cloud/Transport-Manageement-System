@@ -6,8 +6,10 @@
     <h2>📅 Manage Customer Bookings</h2>
 </div>
 
+{% include "components/search_bar.html" %}
+
 <div class="table-container">
-    <table>
+    <table id="dataTable">
         <thead>
             <tr>
                 <th>Booking ID</th>
@@ -51,15 +53,15 @@
                 </td>
                 {% endif %}
             </tr>
-            {% else %}
-            <tr>
-                <td colspan="7">
-                    {% include "components/empty_state.html" %}
-                </td>
-            </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% if not bookings %}
+    <div style="grid-column: 1 / -1;">
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

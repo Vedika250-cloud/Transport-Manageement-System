@@ -6,8 +6,10 @@
     <h2><i data-lucide="credit-card"></i> Payment History & Invoices</h2>
 </div>
 
+{% include "components/search_bar.html" %}
+
 <div class="table-container">
-    <table>
+    <table id="dataTable">
         <thead>
             <tr>
                 <th>Payment ID</th>
@@ -15,7 +17,9 @@
                 <th>Route</th>
                 <th>Date</th>
                 <th>Method</th>
-                <th>Amount</th>
+                <th>Total Amt</th>
+                <th>Advance</th>
+                <th>Remaining</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Invoice</th>
             </tr>
@@ -23,43 +27,47 @@
         <tbody>
             {% for p in payments %}
             <tr style="transition: background 0.2s;" onmouseover="this.style.background='var(--bg-app)'" onmouseout="this.style.background='transparent'">
-                <td>#{{ p.payment_id }}</td>
+                <td style="font-weight: 500;">#{{ p.payment_id }}</td>
                 <td>{% if p.booking_id %}#{{ p.booking_id }}{% else %}-{% endif %}</td>
                 <td>{% if p.pickup_location %}{{ p.pickup_location }} &rarr; {{ p.drop_location }}{% else %}N/A{% endif %}</td>
                 <td>{{ p.payment_date }}</td>
-                <td style="text-transform: capitalize;">{{ p.payment_method }}</td>
+                <td style="text-transform: uppercase; font-size: 13px;">{{ p.payment_method }}</td>
                 <td style="font-weight: 600;">₹ {{ p.amount }}</td>
+                <td style="color: var(--success-color); font-weight: 500;">₹ {{ p.advance_paid|default(0, true) }}</td>
+                <td style="color: {% if p.remaining_amount > 0 %}var(--warning-color){% else %}var(--text-muted){% endif %}; font-weight: 500;">₹ {{ p.remaining_amount|default(0, true) }}</td>
                 <td class="text-center">
-                    {% if p.status == 'pending' %}
+                    {% if p.status == 'Pending' %}
                         <span class="badge badge-warning">Pending</span>
-                    {% elif p.status == 'completed' %}
+                    {% elif p.status == 'Advance Paid' %}
+                        <span class="badge badge-info">Advance Paid</span>
+                    {% elif p.status == 'COD Pending' %}
+                        <span class="badge badge-warning" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37;">COD Pending</span>
+                    {% elif p.status == 'Completed' %}
                         <span class="badge badge-success">Completed</span>
-                    {% elif p.status == 'failed' %}
+                    {% elif p.status == 'Failed' %}
                         <span class="badge badge-danger">Failed</span>
+                    {% elif p.status == 'Refunded' %}
+                        <span class="badge badge-info">Refunded</span>
                     {% else %}
                         <span class="badge badge-info">{{ p.status }}</span>
                     {% endif %}
                 </td>
                 <td class="text-center">
-                    {% if p.status == 'completed' %}
-                        <button class="btn" style="padding: 6px 12px; font-size: 13px;" onclick="alert('Downloading Invoice for Payment #{{ p.payment_id }}...')"><i data-lucide="download" style="width: 14px; margin-right: 4px;"></i> Download</button>
-                    {% else %}
-                        <button class="btn" style="padding: 6px 12px; font-size: 13px; opacity: 0.5; cursor: not-allowed;"><i data-lucide="download" style="width: 14px; margin-right: 4px;"></i> Unavailable</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="8">
-                    {% set icon = "receipt" %}
-                    {% set title = "No payment history" %}
-                    {% set message = "You have no recorded payments yet." %}
-                    {% include "components/empty_state.html" %}
+                    <a href="/invoice/{{ p.payment_id }}" class="btn" style="padding: 6px 12px; font-size: 13px; text-decoration: none;"><i data-lucide="file-text" style="width: 14px; margin-right: 4px;"></i> Invoice</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% if not payments %}
+    <div style="grid-column: 1 / -1;">
+        {% set icon = "receipt" %}
+        {% set title = "No payment history" %}
+        {% set message = "You have no recorded payments yet." %}
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

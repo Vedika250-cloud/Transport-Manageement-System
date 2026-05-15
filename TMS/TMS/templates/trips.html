@@ -9,13 +9,10 @@
     {% endif %}
 </div>
 
-<div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding: 12px 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-width: 400px; box-shadow: var(--shadow-sm);">
-    <span style="font-size: 16px; color: var(--text-muted);">🔍</span>
-    <input type="text" id="tableSearch" placeholder="Search records..." style="width: 100%; border: none; background: transparent; font-size: 14px; color: var(--text-main); outline: none;" />
-</div>
+{% include "components/search_bar.html" %}
 
 <div class="table-container">
-<table>
+<table id="dataTable">
 
 <tr>
 <th>ID</th>
@@ -57,18 +54,18 @@
 
 </tr>
 
-{% else %}
-<tr>
-    <td colspan="6">
-        {% set icon = "route" %}
-        {% set title = "No trips found" %}
-        {% set message = "There are currently no trips assigned." %}
-        {% include "components/empty_state.html" %}
-    </td>
-</tr>
 {% endfor %}
 
 </table>
+
+{% if not trips %}
+<div style="grid-column: 1 / -1;">
+    {% set icon = "route" %}
+    {% set title = "No trips found" %}
+    {% set message = "There are currently no trips assigned." %}
+    {% include "components/empty_state.html" %}
+</div>
+{% endif %}
 </div>
 
 {% endblock %}

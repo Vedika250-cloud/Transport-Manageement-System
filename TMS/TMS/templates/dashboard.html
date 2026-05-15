@@ -78,8 +78,11 @@
 {% if branch_comparisons %}
 <div class="comparisons-section" style="margin-top: 40px;">
     <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 16px; color: var(--text-main); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">🌍 Branch Performance Comparison</h3>
+    {% set search_id = 'searchBranch' %}
+    {% set table_id = 'dataTableBranch' %}
+    {% include 'components/search_bar.html' %}
     <div class="table-container">
-        <table>
+        <table id="dataTableBranch">
             <tr>
                 <th>Branch</th>
                 <th>Total Trips</th>
@@ -220,8 +223,11 @@
     
     <h3 style="margin-bottom: 20px; color: var(--text-main);">🟢 Current Trips</h3>
     {% if current_trips %}
+    {% set search_id = 'searchCurrent' %}
+    {% set table_id = 'dataTableCurrent' %}
+    {% include 'components/search_bar.html' %}
     <div class="table-container" style="margin-bottom: 40px;">
-        <table>
+        <table id="dataTableCurrent">
             <tr>
                 <th>Trip ID</th>
                 <th>Truck</th>
@@ -260,8 +266,11 @@
 
     <h3 style="margin-bottom: 20px; color: var(--text-main);">⏳ Upcoming Trips</h3>
     {% if upcoming_trips %}
+    {% set search_id = 'searchUpcoming' %}
+    {% set table_id = 'dataTableUpcoming' %}
+    {% include 'components/search_bar.html' %}
     <div class="table-container">
-        <table>
+        <table id="dataTableUpcoming">
             <tr>
                 <th>Trip ID</th>
                 <th>Truck</th>

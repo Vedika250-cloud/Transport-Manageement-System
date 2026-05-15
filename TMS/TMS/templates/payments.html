@@ -9,8 +9,10 @@
     {% endif %}
 </div>
 
+{% include "components/search_bar.html" %}
+
 <div class="table-container">
-<table>
+<table id="dataTable">
 
 <tr>
 <th>ID</th>
@@ -19,9 +21,9 @@
 <th>Method</th>
 <th>Reference No</th>
 <th>Date</th>
-<th>Status</th>
+<th class="text-center">Status</th>
 {% if session.role in ['manager', 'accountant'] %}
-<th>Action</th>
+<th class="text-center">Action</th>
 {% endif %}
 </tr>
 
@@ -52,23 +54,23 @@
 </td>
 
 {% if session.role in ['manager', 'accountant'] %}
-<td>
+<td class="text-center">
 <a class="action-btn edit" href="/edit_payment/{{ p.payment_id }}">Edit</a>
-<a class="action-btn delete" href="/delete_payment/{{ p.payment_id }}">Delete</a>
+<a class="action-btn delete" href="/delete_payment/{{ p.payment_id }}" onclick="return confirm('Delete this payment?');">Delete</a>
 </td>
 {% endif %}
 
 </tr>
 
-{% else %}
-<tr>
-    <td colspan="8">
-        {% include "components/empty_state.html" %}
-    </td>
-</tr>
 {% endfor %}
 
 </table>
+
+{% if not payments %}
+<div style="grid-column: 1 / -1;">
+    {% include "components/empty_state.html" %}
+</div>
+{% endif %}
 </div>
 
 {% endblock %}

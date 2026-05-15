@@ -7,8 +7,10 @@
     <a href="/book" class="btn"><i data-lucide="plus"></i> Book New Delivery</a>
 </div>
 
+{% include "components/search_bar.html" %}
+
 <div class="table-container">
-    <table>
+    <table id="dataTable">
         <thead>
             <tr>
                 <th>Booking ID</th>
@@ -28,8 +30,9 @@
                     
                     <!-- Tracking Timeline -->
                     <div style="margin-top: 10px; display: flex; align-items: center; gap: 4px; width: 100%; max-width: 200px;">
-                        {% set statuses = ['Pending', 'Approved', 'In Transit', 'Out for Delivery', 'Delivered'] %}
+                        {% set statuses = ['Pending', 'Advance Paid - COD Pending', 'Approved', 'In Transit', 'Out for Delivery', 'Delivered'] %}
                         {% set current_idx = statuses.index(b.shipment_status) if b.shipment_status in statuses else 0 %}
+                        {% if b.shipment_status == 'Approved' %}{% set current_idx = 2 %}{% endif %}
                         
                         {% for i in range(5) %}
                             <div style="flex: 1; height: 4px; border-radius: 2px; background: {% if i <= current_idx %}var(--primary-color){% else %}var(--border-color){% endif %};"></div>
@@ -41,7 +44,9 @@
                 <td>{{ b.package_weight }} kg</td>
                 <td class="text-center">
                     {% if b.shipment_status == 'Pending' %}
-                        <span class="badge badge-warning">Pending</span>
+                        <span class="badge badge-warning">Pending Payment</span>
+                    {% elif b.shipment_status == 'Advance Paid - COD Pending' %}
+                        <span class="badge badge-warning" style="background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37;">COD Pending</span>
                     {% elif b.shipment_status == 'Approved' %}
                         <span class="badge badge-info">Approved</span>
                     {% elif b.shipment_status == 'In Transit' %}
@@ -57,20 +62,20 @@
                     {% endif %}
                 </td>
             </tr>
-            {% else %}
-            <tr>
-                <td colspan="6">
-                    {% set icon = "package-x" %}
-                    {% set title = "No bookings found" %}
-                    {% set message = "You haven't made any bookings yet." %}
-                    {% set action_url = "/book" %}
-                    {% set action_text = "Create one now" %}
-                    {% include "components/empty_state.html" %}
-                </td>
-            </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% if not bookings %}
+    <div style="grid-column: 1 / -1;">
+        {% set icon = "package-x" %}
+        {% set title = "No bookings found" %}
+        {% set message = "You haven't made any bookings yet." %}
+        {% set action_url = "/book" %}
+        {% set action_text = "Create one now" %}
+        {% include "components/empty_state.html" %}
+    </div>
+    {% endif %}
 </div>
 
 
