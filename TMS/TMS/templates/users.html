@@ -75,7 +75,7 @@
             {% if session.role == 'manager' %}
             <td class="text-center">
                 <a class="action-btn edit" href="/edit_driver/{{ u.id }}">Edit</a>
-                <a class="action-btn delete" href="/delete_driver/{{ u.id }}" onclick="return confirm('Delete this driver?');">Delete</a>
+                <a class="action-btn delete" href="/delete_driver/{{ u.id }}" data-confirm="Delete this driver?">Delete</a>
             </td>
             {% endif %}
             
@@ -95,7 +95,7 @@
             {% if session.role == 'admin' and current_type != 'accountant' %}
             <td class="text-center">
                 <a class="action-btn edit" href="/edit_user/{{ u.id }}">Edit</a>
-                <a class="action-btn delete" href="/delete_user/{{ u.id }}" onclick="return confirm('Delete this {{ current_type }}?');">Delete</a>
+                <a class="action-btn delete" href="/delete_user/{{ u.id }}" data-confirm="Delete this {{ current_type }}?">Delete</a>
             </td>
             {% endif %}
             {% endif %}

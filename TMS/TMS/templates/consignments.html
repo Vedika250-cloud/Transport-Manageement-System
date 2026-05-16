@@ -46,7 +46,7 @@
 {% if session.role != 'admin' %}
 <td class="text-center">
 <a class="action-btn edit" href="/edit_consignment/{{ c.id }}">Edit</a>
-<a class="action-btn delete" href="/delete_consignment/{{ c.id }}" onclick="return confirm('Delete this consignment?');">Delete</a>
+<a class="action-btn delete" href="/delete_consignment/{{ c.id }}" data-confirm="Delete this consignment?">Delete</a>
 </td>
 {% endif %}
 

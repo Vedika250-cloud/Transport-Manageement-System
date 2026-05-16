@@ -169,11 +169,11 @@ async function calculateEstimate() {
 
             document.getElementById('estimateResult').style.display = 'block';
         } else {
-            alert('Error calculating estimate.');
+            showToast('Error calculating estimate.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while calculating estimate.');
+        showToast('An error occurred while calculating estimate.', 'error');
     }
 }
 </script>

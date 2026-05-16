@@ -43,7 +43,7 @@
 {% if session.role in ['admin', 'manager'] %}
 <td class="text-center">
 <a class="action-btn edit" href="/edit_driver/{{ d.id }}">Edit</a>
-<a class="action-btn delete" href="/delete_driver/{{ d.id }}" onclick="return confirm('Delete this driver?');">Delete</a>
+<a class="action-btn delete" href="/delete_driver/{{ d.id }}" data-confirm="Delete this driver?">Delete</a>
 </td>
 {% endif %}
 

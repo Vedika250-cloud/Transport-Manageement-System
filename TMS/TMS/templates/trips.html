@@ -48,7 +48,7 @@
 {% if session.role != 'admin' %}
 <td class="text-center">
 <a class="action-btn edit" href="/edit_trip/{{ t.id }}">Edit</a>
-<a class="action-btn delete" href="/delete_trip/{{ t.id }}" onclick="return confirm('Delete this trip?');">Delete</a>
+<a class="action-btn delete" href="/delete_trip/{{ t.id }}" data-confirm="Delete this trip?">Delete</a>
 </td>
 {% endif %}
 

@@ -1,11 +1,43 @@
 <!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="modal-overlay">
+<div id="logoutModal" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
   <div class="modal-box">
+    <div class="modal-icon-container warning">
+        <i data-lucide="log-out"></i>
+    </div>
     <h3>Confirm Logout</h3>
     <p>Are you sure you want to log out of the TMS?</p>
     <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeLogoutModal()">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeModal('logoutModal')">Cancel</button>
       <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+  </div>
+</div>
+
+<!-- Global Confirmation Modal -->
+<div id="globalConfirmModal" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="modal-box">
+    <div class="modal-icon-container warning" id="globalConfirmIcon">
+        <i data-lucide="alert-triangle"></i>
+    </div>
+    <h3 id="globalConfirmTitle">Confirm Action</h3>
+    <p id="globalConfirmMessage">Are you sure you want to proceed?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('globalConfirmModal')" id="globalConfirmCancelBtn">Cancel</button>
+      <button class="btn btn-danger" id="globalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Global Alert Modal -->
+<div id="globalAlertModal" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="modal-box">
+    <div class="modal-icon-container info" id="globalAlertIcon">
+        <i data-lucide="info"></i>
+    </div>
+    <h3 id="globalAlertTitle">Alert</h3>
+    <p id="globalAlertMessage">Something happened.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal('globalAlertModal')" id="globalAlertOkBtn">OK</button>
     </div>
   </div>
 </div>

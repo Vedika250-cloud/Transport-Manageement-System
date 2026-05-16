@@ -43,7 +43,7 @@
             <td class="text-center">
                 <a class="action-btn edit" href="/edit_branch/{{ branch.branch_id }}">Edit</a>
                 {% if branch.branch_id != 1 %}
-                <a class="action-btn delete" href="/delete_branch/{{ branch.branch_id }}" onclick="return confirm('Delete this branch? All data will be reassigned to Central Operations.');">Delete</a>
+                <a class="action-btn delete" href="/delete_branch/{{ branch.branch_id }}" data-confirm="Delete this branch? All data will be reassigned to Central Operations.">Delete</a>
                 {% endif %}
             </td>
         </tr>

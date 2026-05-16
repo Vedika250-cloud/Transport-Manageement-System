@@ -56,7 +56,7 @@
 {% if session.role in ['manager', 'accountant'] %}
 <td class="text-center">
 <a class="action-btn edit" href="/edit_payment/{{ p.payment_id }}">Edit</a>
-<a class="action-btn delete" href="/delete_payment/{{ p.payment_id }}" onclick="return confirm('Delete this payment?');">Delete</a>
+<a class="action-btn delete" href="/delete_payment/{{ p.payment_id }}" data-confirm="Delete this payment?">Delete</a>
 </td>
 {% endif %}
 

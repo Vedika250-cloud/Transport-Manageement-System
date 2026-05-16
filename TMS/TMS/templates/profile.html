@@ -153,27 +153,6 @@
     }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* Custom Toast */
-    .custom-toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: white;
-        padding: 15px 25px;
-        border-radius: var(--radius-sm);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transform: translateY(100px);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        z-index: 9999;
-    }
-    .custom-toast.show { transform: translateY(0); opacity: 1; }
-    .custom-toast.success { border-left: 4px solid #10b981; }
-    .custom-toast.error { border-left: 4px solid #ef4444; }
-
     /* Camera Modal */
     .camera-modal-overlay {
         display: none;
@@ -326,11 +305,7 @@
     </div>
 </div>
 
-<!-- Custom Toast Container -->
-<div id="customToast" class="custom-toast">
-    <i id="toastIcon" data-lucide="check-circle" style="color: #10b981;"></i>
-    <span id="toastMessage" style="font-weight: 500; color: var(--text-main);">Success</span>
-</div>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -374,25 +349,7 @@
         if(this.files.length) handleFiles(this.files[0]);
     });
 
-    function showToast(message, type = 'success') {
-        const toast = document.getElementById('customToast');
-        const icon = document.getElementById('toastIcon');
-        document.getElementById('toastMessage').innerText = message;
-        
-        toast.className = 'custom-toast'; // Reset
-        toast.classList.add('show', type);
-        
-        if(type === 'success') {
-            icon.setAttribute('data-lucide', 'check-circle');
-            icon.style.color = '#10b981';
-        } else {
-            icon.setAttribute('data-lucide', 'alert-circle');
-            icon.style.color = '#ef4444';
-        }
-        lucide.createIcons();
 
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
 
     function handleFiles(file) {
         const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -503,26 +460,26 @@
     }
 
     function removePhoto() {
-        if(!confirm("Are you sure you want to remove your profile picture?")) return;
-        
-        const formData = new FormData();
-        formData.append('action', 'remove');
-        
-        uploadSpinner.style.display = 'flex';
-        fetch('/profile', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            uploadSpinner.style.display = 'none';
-            if (data.success) {
-                showToast(data.message, 'success');
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                showToast(data.error || 'Failed to remove', 'error');
-            }
+        showConfirm("Remove Photo", "Are you sure you want to remove your profile picture?", () => {
+            const formData = new FormData();
+            formData.append('action', 'remove');
+            
+            uploadSpinner.style.display = 'flex';
+            fetch('/profile', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                uploadSpinner.style.display = 'none';
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.error || 'Failed to remove', 'error');
+                }
+            });
         });
     }
 

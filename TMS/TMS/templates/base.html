@@ -38,10 +38,7 @@
 <script>
 function confirmLogout(event) {
   event.preventDefault();
-  document.getElementById('logoutModal').style.display = 'flex';
-}
-function closeLogoutModal() {
-  document.getElementById('logoutModal').style.display = 'none';
+  openModal('logoutModal');
 }
 lucide.createIcons();
 </script>

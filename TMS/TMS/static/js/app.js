@@ -7,14 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
         row.style.animation = `fadeIn 0.3s ease forwards ${index * 0.05}s`;
     });
 
-    // Delete confirmation prompt
-    const deleteButtons = document.querySelectorAll('.action-btn.delete');
-    deleteButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if(!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
-                e.preventDefault();
-            }
-        });
+    // Global Confirmation Handler for Links/Buttons
+    document.addEventListener('click', (e) => {
+        const confirmBtn = e.target.closest('[data-confirm]');
+        if (confirmBtn) {
+            e.preventDefault();
+            const message = confirmBtn.getAttribute('data-confirm');
+            const url = confirmBtn.getAttribute('href');
+            const isDanger = confirmBtn.classList.contains('delete') || confirmBtn.classList.contains('danger');
+            
+            showConfirm('Confirm Action', message, () => {
+                if (url && url !== '#') {
+                    window.location.href = url;
+                } else if (confirmBtn.tagName.toLowerCase() === 'button' && confirmBtn.form) {
+                    confirmBtn.form.submit();
+                }
+            }, isDanger);
+        }
     });
 
     // Add visual status badge classes & fix alignment
@@ -146,4 +155,117 @@ function toggleSidebar() {
     if (sidebar) {
         sidebar.classList.toggle('open');
     }
+}
+
+/* ========================
+   Global Modals & Toasts
+   ======================== */
+
+window.openModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('open');
+        // Focus trap & accessibility
+        const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const firstFocusableElement = modal.querySelectorAll(focusableElements)[0];
+        if (firstFocusableElement) {
+            setTimeout(() => firstFocusableElement.focus(), 100);
+        }
+    }
+}
+
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('open');
+    }
+}
+
+// Close modals on ESC key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const openModals = document.querySelectorAll('.modal-overlay.open');
+        openModals.forEach(modal => closeModal(modal.id));
+    }
+});
+
+// Close modals on clicking backdrop
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        closeModal(e.target.id);
+    }
+});
+
+window.showConfirm = function(title, message, onConfirmCallback, isDanger = true) {
+    document.getElementById('globalConfirmTitle').innerText = title;
+    document.getElementById('globalConfirmMessage').innerText = message;
+    
+    const confirmBtn = document.getElementById('globalConfirmBtn');
+    
+    // Style button based on danger level
+    if (isDanger) {
+        confirmBtn.className = 'btn btn-danger';
+    } else {
+        confirmBtn.className = 'btn btn-primary';
+    }
+    
+    // Remove old event listeners by cloning
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    newConfirmBtn.addEventListener('click', () => {
+        closeModal('globalConfirmModal');
+        if(onConfirmCallback) onConfirmCallback();
+    });
+    
+    openModal('globalConfirmModal');
+}
+
+window.showAlert = function(title, message, type = 'info') {
+    document.getElementById('globalAlertTitle').innerText = title;
+    document.getElementById('globalAlertMessage').innerText = message;
+    
+    const iconContainer = document.getElementById('globalAlertIcon');
+    iconContainer.className = `modal-icon-container ${type}`;
+    
+    let iconName = 'info';
+    if(type === 'danger') iconName = 'alert-triangle';
+    if(type === 'warning') iconName = 'alert-circle';
+    if(type === 'success') iconName = 'check-circle';
+    
+    iconContainer.innerHTML = `<i data-lucide="${iconName}"></i>`;
+    if(window.lucide) lucide.createIcons();
+    
+    openModal('globalAlertModal');
+}
+
+window.showToast = function(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    let iconName = 'info';
+    if(type === 'error' || type === 'danger') iconName = 'alert-circle';
+    if(type === 'warning') iconName = 'alert-triangle';
+    if(type === 'success') iconName = 'check-circle';
+    
+    toast.innerHTML = `
+        <i data-lucide="${iconName}" class="toast-icon"></i>
+        <span>${message}</span>
+        <button class="toast-close" onclick="this.parentElement.classList.add('fade-out'); setTimeout(() => this.parentElement.remove(), 400)"><i data-lucide="x"></i></button>
+        <div class="toast-progress"></div>
+    `;
+    
+    container.appendChild(toast);
+    if(window.lucide) lucide.createIcons();
+    
+    // Auto-dismiss after 4 seconds matching the progress animation
+    setTimeout(() => {
+        if(toast.parentElement) {
+            toast.classList.add('fade-out');
+            setTimeout(() => toast.remove(), 400);
+        }
+    }, 4000);
 }
