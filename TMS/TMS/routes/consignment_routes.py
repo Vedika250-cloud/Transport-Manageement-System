@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
 from db import execute_read, execute_query
-from utils import login_required, role_required, get_branch_filter
+from utils import login_required, role_required, get_branch_filter, get_active_branch_id
 
 consignment_bp = Blueprint('consignment_bp', __name__)
 
@@ -17,7 +17,8 @@ def consignments():
                 c.Sender_name AS sender, 
                 c.Receiver_name AS receiver, 
                 CONCAT(t.Route_From, " to ", t.Route_To) AS route, 
-                c.status AS status 
+                c.Weight_tone AS weight,
+                c.status AS status
             FROM consignments c
             LEFT JOIN trips t ON c.trip_id = t.Trip_id
             {b_filter}
@@ -44,16 +45,22 @@ def add_consignment():
         status = request.form.get("status", "booked")
 
         try:
+            weight_val = float(weight) if weight else 0
+            if weight_val <= 0:
+                flash("Weight must be greater than zero.", "error")
+                return redirect("/add_consignment")
+                
+            weight_tonnes = weight_val / 1000.0
+            
             query = "INSERT INTO consignments(trip_id, Sender_name, Receiver_name, Goods_type, Weight_tone, Freight_Amount, status, branch_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
-            execute_query(query,(trip_id, sender, receiver, goods_type, weight, amount, status, session.get('branch_id') or 1))
+            execute_query(query,(trip_id, sender, receiver, goods_type, weight_tonnes, amount, status, get_active_branch_id()))
             flash("Consignment added successfully", "success")
         except Exception as e:
             flash(f"Error adding consignment: {str(e)}", "error")
         return redirect("/consignments")
 
     try:
-        b_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        params = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        b_filter, params = get_branch_filter(prefix=" WHERE ")
         trips = execute_read(f"SELECT * FROM trips{b_filter}", params)
     except Exception as e:
         flash(f"Error loading trips: {str(e)}", "error")
@@ -77,8 +84,15 @@ def edit_consignment(id):
         status = request.form.get("status")
 
         try:
+            weight_val = float(weight) if weight else 0
+            if weight_val <= 0:
+                flash("Weight must be greater than zero.", "error")
+                return redirect(f"/edit_consignment/{id}")
+                
+            weight_tonnes = weight_val / 1000.0
+            
             b_filter = " AND branch_id = %s" if session.get('role') == 'manager' else ""
-            params = (trip_id, sender, receiver, goods_type, weight, amount, status, id)
+            params = (trip_id, sender, receiver, goods_type, weight_tonnes, amount, status, id)
             if session.get('role') == 'manager':
                 params += (session.get('branch_id'),)
                 
@@ -100,8 +114,7 @@ def edit_consignment(id):
             flash("Consignment not found or access denied.", "error")
             return redirect("/consignments")
 
-        t_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        t_params = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        t_filter, t_params = get_branch_filter(prefix=" WHERE ")
         trips = execute_read(f"SELECT * FROM trips{t_filter}", t_params)
     except Exception as e:
         flash(f"Error loading consignment: {str(e)}", "error")

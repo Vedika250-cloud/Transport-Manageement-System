@@ -30,7 +30,7 @@
                 <td>{{ b.customer_name }}</td>
                 <td>{{ b.pickup_location }} &rarr; {{ b.drop_location }}</td>
                 <td>{{ b.delivery_date }}</td>
-                <td>{{ b.package_type }} ({{ b.package_weight }}kg)</td>
+                <td>{{ b.package_type }} ({{ b.package_weight }} kg / {{ "%.2f"|format(b.package_weight / 1000) }} T)</td>
                 <td class="text-center">
                     {% if b.status == 'Pending' %}
                         <span class="badge badge-warning">Pending</span>

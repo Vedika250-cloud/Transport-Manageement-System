@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
 from werkzeug.security import generate_password_hash
 from db import execute_read, execute_query
-from utils import login_required, role_required, get_branch_filter
+from utils import login_required, role_required, get_branch_filter, get_active_branch_id
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -79,7 +79,7 @@ def add_driver():
             hashed_password = generate_password_hash("driver123") # default password
             
             query = "INSERT INTO users(First_name, Last_name, Email, Password, Role, Phone, Status, branch_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
-            execute_query(query,(first_name, last_name, placeholder_email, hashed_password, 'driver', phone, status, session.get('branch_id')))
+            execute_query(query,(first_name, last_name, placeholder_email, hashed_password, 'driver', phone, status, get_active_branch_id()))
             flash("Driver added successfully", "success")
         except Exception as e:
             flash(f"Error adding driver: {str(e)}", "error")
@@ -175,7 +175,7 @@ def add_user():
         status = request.form.get("status")
         branch_id = request.form.get("branch_id")
         if not branch_id or branch_id.strip() == "":
-            branch_id = 1
+            branch_id = get_active_branch_id()
 
         if role not in ['manager', 'accountant', 'customer']:
             flash("Invalid role selected.", "error")

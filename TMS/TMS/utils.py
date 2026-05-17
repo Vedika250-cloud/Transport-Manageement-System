@@ -40,3 +40,15 @@ def get_branch_filter(prefix=" AND ", table_alias=""):
             
     return "", ()
 
+def get_active_branch_id():
+    """
+    Returns the branch_id that should be used for inserting new records.
+    For admins, if they have an active branch filter, it uses that.
+    Otherwise, defaults to the user's branch_id or 1 (Central Operations).
+    """
+    if session.get('role') == 'admin':
+        admin_filter = session.get('admin_branch_filter', 'all')
+        if admin_filter and admin_filter != 'all':
+            return int(admin_filter)
+    
+    return session.get('branch_id') or 1

@@ -19,6 +19,7 @@
 <th>Sender</th>
 <th>Receiver</th>
 <th>Route</th>
+<th>Weight</th>
 <th class="text-center">Status</th>
 {% if session.role != 'admin' %}
 <th class="text-center">Action</th>
@@ -33,6 +34,7 @@
 <td>{{ c.sender }}</td>
 <td>{{ c.receiver }}</td>
 <td>{{ c.route }}</td>
+<td>{{ (c.weight * 1000)|round(2) }} kg ({{ c.weight }} T)</td>
 <td class="text-center">
     {% if c.status == 'booked' %}
         <span class="badge badge-warning">Booked</span>

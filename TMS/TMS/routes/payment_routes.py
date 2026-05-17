@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
 from db import execute_read, execute_query
-from utils import login_required, role_required, get_branch_filter
+from utils import login_required, role_required, get_branch_filter, get_active_branch_id
 
 payment_bp = Blueprint('payment_bp', __name__)
 
@@ -54,15 +54,14 @@ def add_payment():
 
         try:
             query = "INSERT INTO payments(Consignment_id, Booking_id, Amount, Payment_date, method, Reference_no, status, branch_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
-            execute_query(query,(consignment_id, booking_id, amount, payment_date, payment_method, reference_no, status, session.get('branch_id') or 1))
+            execute_query(query,(consignment_id, booking_id, amount, payment_date, payment_method, reference_no, status, get_active_branch_id()))
             flash("Payment added successfully", "success")
         except Exception as e:
             flash(f"Error adding payment: {str(e)}", "error")
         return redirect("/payments")
 
     try:
-        b_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        params = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        b_filter, params = get_branch_filter(prefix=" WHERE ")
         consignments = execute_read(f"SELECT * FROM consignments{b_filter}", params)
         bookings = execute_read(f"SELECT * FROM bookings{b_filter}", params)
     except Exception as e:
@@ -114,8 +113,7 @@ def edit_payment(id):
             flash("Payment not found or access denied.", "error")
             return redirect("/payments")
 
-        c_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        c_params = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        c_filter, c_params = get_branch_filter(prefix=" WHERE ")
         consignments = execute_read(f"SELECT * FROM consignments{c_filter}", c_params)
         bookings = execute_read(f"SELECT * FROM bookings{c_filter}", c_params)
     except Exception as e:

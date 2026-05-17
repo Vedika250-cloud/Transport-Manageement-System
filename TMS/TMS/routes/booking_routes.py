@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, flash, jsonify
 from db import execute_read, execute_query
-from utils import login_required, role_required, get_branch_filter
+from utils import login_required, role_required, get_branch_filter, get_active_branch_id
 
 booking_bp = Blueprint('booking_bp', __name__)
 
@@ -21,6 +21,11 @@ def book_delivery():
         try:
             distance_type = "local" if pickup.strip().lower() == drop.strip().lower() else "interstate"
             weight_val = float(weight) if weight else 0
+            
+            if weight_val <= 0:
+                flash("Weight must be greater than zero.", "error")
+                return redirect("/book")
+                
             fragile = "fragile" in pkg_type.lower() or "glass" in pkg_type.lower()
             
             base_charge = 300 if distance_type == "local" else 1200
@@ -34,7 +39,7 @@ def book_delivery():
             query = """INSERT INTO bookings 
                        (customer_id, pickup_location, drop_location, package_type, package_weight, delivery_date, contact_info, branch_id, booking_date, total_amount) 
                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CURDATE(), %s)"""
-            booking_id = execute_query(query, (customer_id, pickup, drop, pkg_type, weight, date, contact, session.get('branch_id') or 1, total))
+            booking_id = execute_query(query, (customer_id, pickup, drop, pkg_type, weight_val, date, contact, get_active_branch_id(), total))
             
             return redirect(f"/checkout/{booking_id}")
         except Exception as e:
@@ -76,8 +81,11 @@ def estimate_pricing():
     distance = data.get("distance", "local")
     try:
         weight = float(data.get("weight", 0))
+        if weight <= 0:
+            return jsonify({"error": "Weight must be greater than zero."}), 400
     except (ValueError, TypeError):
         weight = 0
+        return jsonify({"error": "Invalid weight format."}), 400
     priority = data.get("priority", "standard")
     fragile = data.get("fragile", False)
     

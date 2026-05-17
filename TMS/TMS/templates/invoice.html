@@ -37,7 +37,7 @@
             <h4 style="text-transform: uppercase; color: #999; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px;">Shipment Details:</h4>
             <p style="margin: 0; font-size: 14px;"><strong>Booking ID:</strong> #{{ payment.booking_id }}</p>
             <p style="margin: 0; font-size: 14px;"><strong>Route:</strong> {{ payment.pickup_location }} to {{ payment.drop_location }}</p>
-            <p style="margin: 0; font-size: 14px;"><strong>Package:</strong> {{ payment.package_type }} ({{ payment.package_weight }} kg)</p>
+            <p style="margin: 0; font-size: 14px;"><strong>Package:</strong> {{ payment.package_type }} ({{ payment.package_weight }} kg / {{ "%.2f"|format(payment.package_weight / 1000) }} T)</p>
         </div>
     </div>
 

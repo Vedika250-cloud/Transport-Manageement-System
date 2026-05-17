@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
 from db import execute_read, execute_query
-from utils import login_required, role_required, get_branch_filter
+from utils import login_required, role_required, get_branch_filter, get_active_branch_id
 
 trip_bp = Blueprint('trip_bp', __name__)
 
@@ -48,37 +48,36 @@ def add_trip():
             # Driver Validation
             existing_driver = execute_read("""
                 SELECT 1 FROM trips 
-                WHERE Driver_id=%s AND Start_Date=%s 
-                AND Status IN ('Assigned', 'In Transit')
-            """, (driver_id, start_date), fetchall=False)
+                WHERE Driver_id=%s AND Status NOT IN ('Delivered', 'Cancelled')
+                AND Start_Date <= %s AND IFNULL(End_Date, Start_Date) >= %s
+            """, (driver_id, end_date or start_date, start_date), fetchall=False)
             if existing_driver:
-                flash("Driver already assigned to another trip on this date.", "error")
+                flash("Driver already assigned to another trip on this date range.", "error")
                 return redirect("/add_trip")
 
             # Vehicle Validation
             existing_vehicle = execute_read("""
                 SELECT 1 FROM trips 
-                WHERE Vehicle_id=%s AND Start_Date=%s 
-                AND Status IN ('Assigned', 'In Transit')
-            """, (vehicle_id, start_date), fetchall=False)
+                WHERE Vehicle_id=%s AND Status NOT IN ('Delivered', 'Cancelled')
+                AND Start_Date <= %s AND IFNULL(End_Date, Start_Date) >= %s
+            """, (vehicle_id, end_date or start_date, start_date), fetchall=False)
             if existing_vehicle:
-                flash("Vehicle already assigned to another trip on this date.", "error")
+                flash("Vehicle already assigned to another trip on this date range.", "error")
                 return redirect("/add_trip")
 
             query = "INSERT INTO trips(Vehicle_id, Driver_id, Route_From, Route_To, Start_Date, End_Date, Status, branch_id) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
-            execute_query(query,(vehicle_id, driver_id, route_from, route_to, start_date, end_date or None, status, session.get('branch_id')))
+            execute_query(query,(vehicle_id, driver_id, route_from, route_to, start_date, end_date or None, status, get_active_branch_id()))
             flash("Trip added successfully", "success")
         except Exception as e:
             flash(f"Error adding trip: {str(e)}", "error")
         return redirect("/trips")
         
     try:
-        b_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        d_filter = " AND branch_id = %s" if session.get('role') == 'manager' else ""
-        params = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        b_filter, params = get_branch_filter(prefix=" WHERE ")
+        d_filter, d_params = get_branch_filter(prefix=" AND ")
         
         vehicles = execute_read(f"SELECT * FROM vehicles{b_filter}", params)
-        drivers = execute_read(f"SELECT user_id AS driver_id, CONCAT(First_name, ' ', Last_name) AS name FROM users WHERE Role='driver' AND Status='active'{d_filter}", params)
+        drivers = execute_read(f"SELECT user_id AS driver_id, CONCAT(First_name, ' ', Last_name) AS name FROM users WHERE Role='driver' AND Status='active'{d_filter}", d_params)
     except Exception as e:
         flash(f"Error loading data: {str(e)}", "error")
         vehicles = []
@@ -112,21 +111,21 @@ def edit_trip(id):
             # Driver Validation
             existing_driver = execute_read("""
                 SELECT 1 FROM trips 
-                WHERE Driver_id=%s AND Start_Date=%s 
-                AND Status IN ('Assigned', 'In Transit') AND Trip_id != %s
-            """, (driver_id, start_date, id), fetchall=False)
+                WHERE Driver_id=%s AND Trip_id != %s AND Status NOT IN ('Delivered', 'Cancelled')
+                AND Start_Date <= %s AND IFNULL(End_Date, Start_Date) >= %s
+            """, (driver_id, id, end_date or start_date, start_date), fetchall=False)
             if existing_driver:
-                flash("Driver already assigned to another trip on this date.", "error")
+                flash("Driver already assigned to another trip on this date range.", "error")
                 return redirect(f"/edit_trip/{id}")
 
             # Vehicle Validation
             existing_vehicle = execute_read("""
                 SELECT 1 FROM trips 
-                WHERE Vehicle_id=%s AND Start_Date=%s 
-                AND Status IN ('Assigned', 'In Transit') AND Trip_id != %s
-            """, (vehicle_id, start_date, id), fetchall=False)
+                WHERE Vehicle_id=%s AND Trip_id != %s AND Status NOT IN ('Delivered', 'Cancelled')
+                AND Start_Date <= %s AND IFNULL(End_Date, Start_Date) >= %s
+            """, (vehicle_id, id, end_date or start_date, start_date), fetchall=False)
             if existing_vehicle:
-                flash("Vehicle already assigned to another trip on this date.", "error")
+                flash("Vehicle already assigned to another trip on this date range.", "error")
                 return redirect(f"/edit_trip/{id}")
 
             b_filter = " AND branch_id = %s" if session.get('role') == 'manager' else ""
@@ -156,12 +155,11 @@ def edit_trip(id):
             flash("This trip is locked and cannot be edited.", "error")
             return redirect("/trips")
 
-        b_filter = " WHERE branch_id = %s" if session.get('role') == 'manager' else ""
-        d_filter = " AND branch_id = %s" if session.get('role') == 'manager' else ""
-        params_dd = (session.get('branch_id'),) if session.get('role') == 'manager' else ()
+        b_filter_veh, params_veh = get_branch_filter(prefix=" WHERE ")
+        d_filter_dr, params_dr = get_branch_filter(prefix=" AND ")
         
-        drivers = execute_read(f"SELECT user_id AS driver_id, CONCAT(First_name, ' ', Last_name) AS name FROM users WHERE Role='driver' AND Status='active'{d_filter}", params_dd)
-        vehicles = execute_read(f"SELECT * FROM vehicles{b_filter}", params_dd)
+        drivers = execute_read(f"SELECT user_id AS driver_id, CONCAT(First_name, ' ', Last_name) AS name FROM users WHERE Role='driver' AND Status='active'{d_filter_dr}", params_dr)
+        vehicles = execute_read(f"SELECT * FROM vehicles{b_filter_veh}", params_veh)
     except Exception as e:
         flash(f"Error loading trip data: {str(e)}", "error")
         return redirect("/trips")
