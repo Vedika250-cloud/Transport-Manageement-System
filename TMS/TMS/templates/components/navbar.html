@@ -11,6 +11,13 @@
 
 <h3>Transport Management System</h3>
 
+<div style="display: flex; align-items: center; gap: 16px;">
+
+<button id="theme-toggle" class="btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; margin-bottom: 0;">
+    <i data-lucide="sun" id="theme-icon-light" style="display: none;"></i>
+    <i data-lucide="moon" id="theme-icon-dark"></i>
+</button>
+
 <div class="user">
 
 {% if session.get('profile_pic') %}
@@ -21,6 +28,8 @@
 </div>
 {% endif %}
 <span>{{ session["username"] }}</span>
+
+</div>
 
 </div>
 

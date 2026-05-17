@@ -8,6 +8,16 @@
 @import url('tables.css');
 
 /* ==================
+   Theme Transitions
+   ================== */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *:before,
+html.theme-transition *:after {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
+}
+
+/* ==================
    Login Interface
    ================== */
 .login-body {
@@ -23,7 +33,7 @@
 }
 
 .login-box {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bg-card);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     padding: 50px 40px;

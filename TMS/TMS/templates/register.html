@@ -5,9 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TMS Customer Registration</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    // Theme Initialization (Prevent FOUC)
+    const savedTheme = localStorage.getItem('tms_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+</script>
 </head>
 <body class="login-body">
+
+<button id="theme-toggle" class="btn-secondary" style="position: fixed; bottom: 40px; right: 40px; border-radius: 50px; padding: 12px 24px; display: flex; align-items: center; gap: 12px; justify-content: center; z-index: 1000; border: 1px solid var(--border-color); background: var(--bg-card); cursor: pointer; box-shadow: var(--shadow-lg); transition: var(--transition-fast); font-weight: 600; color: var(--text-main); font-size: 15px;">
+    <i data-lucide="sun" id="theme-icon-light" style="display: none; width: 20px; height: 20px;"></i>
+    <i data-lucide="moon" id="theme-icon-dark" style="width: 20px; height: 20px;"></i>
+    <span>Theme</span>
+</button>
 
 <div class="login-box" style="max-width: 500px;">
     <h2>Create Customer Account</h2>
@@ -51,6 +65,9 @@
         <a href="/" style="display: block; text-align: center; margin-top: 20px; color: var(--accent); text-decoration: none; font-weight: 500;">← Back to Portal</a>
     </form>
 </div>
-
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

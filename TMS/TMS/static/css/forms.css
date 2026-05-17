@@ -115,14 +115,14 @@
 }
 
 .custom-select-trigger:hover {
-    border-color: var(--primary-color, rgba(107, 142, 35, 0.5));
-    background: #ffffff;
+    border-color: var(--accent);
+    background: var(--bg-input);
 }
 
 .custom-select-wrapper.open .custom-select-trigger {
-    border-color: var(--primary-color, #6b8e23);
-    background: #ffffff;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 3px rgba(107, 142, 35, 0.15);
+    border-color: var(--accent);
+    background: var(--bg-input);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 3px var(--accent-glow);
 }
 
 .custom-select-trigger .arrow {
@@ -140,7 +140,7 @@
 
 .custom-select-wrapper.open .custom-select-trigger .arrow {
     transform: rotate(180deg);
-    stroke: var(--primary-color, #6b8e23);
+    stroke: var(--accent);
 }
 
 .custom-options {
@@ -148,8 +148,8 @@
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    background: #ffffff; /* Explicit white for dropdown */
-    border: 1px solid var(--border-color, #e5e7eb);
+    background: var(--bg-card); /* Theme aware */
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md, 8px);
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     opacity: 0;
@@ -162,7 +162,7 @@
     padding: 6px;
 }
 
-.custom-select-wrapper.open .custom-options {
+.custom-options.open {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -203,7 +203,7 @@
 .custom-option {
     padding: 10px 14px;
     font-size: 14px;
-    color: var(--text-main, #374151);
+    color: var(--text-main);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -213,13 +213,13 @@
 }
 
 .custom-option:hover {
-    background: rgba(107, 142, 35, 0.08); /* Very subtle green */
-    color: var(--primary-dark, #556b2f);
+    background: var(--bg-hover);
+    color: var(--accent);
 }
 
 .custom-option.selected {
-    background: rgba(107, 142, 35, 0.12); /* Slightly stronger for selected */
-    color: var(--primary-dark, #556b2f);
+    background: var(--accent-glow);
+    color: var(--accent);
     font-weight: 600;
 }
 

@@ -8,6 +8,14 @@
 <title>TMS Dashboard</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    // Theme Initialization (Prevent FOUC)
+    const savedTheme = localStorage.getItem('tms_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+</script>
 </head>
 
 <body>

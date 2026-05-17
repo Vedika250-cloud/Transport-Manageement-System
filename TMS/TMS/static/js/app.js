@@ -1,4 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const iconLight = document.getElementById('theme-icon-light');
+    const iconDark = document.getElementById('theme-icon-dark');
+    
+    // Function to update icon state
+    const updateThemeIcon = (theme) => {
+        if (!themeToggleBtn) return;
+        if (theme === 'dark') {
+            iconLight.style.display = 'block';
+            iconDark.style.display = 'none';
+        } else {
+            iconLight.style.display = 'none';
+            iconDark.style.display = 'block';
+        }
+    };
+
+    // Initialize icon based on current theme (set by head script)
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeIcon(currentTheme);
+
+    // Apply global transition class after initial load to prevent FOUC animation
+    setTimeout(() => {
+        document.documentElement.classList.add('theme-transition');
+    }, 100);
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            if (newTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            
+            localStorage.setItem('tms_theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+
     // Animate table rows sequentially
     const tableRows = document.querySelectorAll('tbody tr');
     tableRows.forEach((row, index) => {
@@ -64,8 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Global Custom Select Dropdowns
-    const selects = document.querySelectorAll('select:not(.no-custom)');
+    const selects = document.querySelectorAll('select:not(.no-custom):not(.custom-initialized)');
     selects.forEach(select => {
+        select.classList.add('custom-initialized');
+        
         // Hide original native select
         select.style.display = 'none';
 
@@ -112,44 +156,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Populate options based on native select options
-        Array.from(select.options).forEach((option) => {
-            const customOption = document.createElement('div');
-            customOption.className = 'custom-option';
-            if(option.selected) customOption.classList.add('selected');
-            
-            customOption.textContent = option.text;
-            customOption.dataset.value = option.value;
-            
-            // When custom option is clicked
-            customOption.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Assign value to original select so form submission works properly
-                if (select.value !== option.value) {
-                    select.value = option.value;
-                    // Trigger native change event so inline onchange and listeners work
-                    select.dispatchEvent(new Event('change'));
-                }
+        if (select.options.length === 0) {
+            const emptyOption = document.createElement('div');
+            emptyOption.className = 'custom-option';
+            emptyOption.style.color = '#9ca3af';
+            emptyOption.style.pointerEvents = 'none';
+            emptyOption.textContent = 'No options available';
+            optionsContainer.appendChild(emptyOption);
+        } else {
+            Array.from(select.options).forEach((option) => {
+                const customOption = document.createElement('div');
+                customOption.className = 'custom-option';
+                if(option.selected) customOption.classList.add('selected');
                 
-                // Update text
-                trigger.querySelector('span').textContent = option.text;
+                customOption.textContent = option.text;
+                customOption.dataset.value = option.value;
                 
-                // Refresh selection styles
-                optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
-                customOption.classList.add('selected');
-                
-                // Reset search if exists
-                const search = optionsContainer.querySelector('.custom-select-search');
-                if (search) {
-                    search.value = '';
-                    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hidden'));
-                }
-                
-                // Close wrapper
-                wrapper.classList.remove('open');
-                optionsContainer.classList.remove('open');
+                // When custom option is clicked
+                customOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Assign value to original select so form submission works properly
+                    if (select.value !== option.value) {
+                        select.value = option.value;
+                        // Trigger native change event so inline onchange and listeners work
+                        select.dispatchEvent(new Event('change'));
+                    }
+                    
+                    // Update text
+                    trigger.querySelector('span').textContent = option.text;
+                    
+                    // Refresh selection styles
+                    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+                    customOption.classList.add('selected');
+                    
+                    // Reset search if exists
+                    const search = optionsContainer.querySelector('.custom-select-search');
+                    if (search) {
+                        search.value = '';
+                        optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hidden'));
+                    }
+                    
+                    // Close wrapper
+                    wrapper.classList.remove('open');
+                    optionsContainer.classList.remove('open');
+                });
+                optionsContainer.appendChild(customOption);
             });
-            optionsContainer.appendChild(customOption);
-        });
+        }
 
         // Function to update position
         const updatePosition = () => {

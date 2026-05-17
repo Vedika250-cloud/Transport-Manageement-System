@@ -48,7 +48,7 @@
 
 .sidebar a {
     display: flex;
-    color: #4b5563; /* Medium dark gray */
+    color: var(--text-muted);
     text-decoration: none;
     padding: 14px 20px;
     font-size: 15px;
@@ -69,8 +69,8 @@
 
 .sidebar a:hover {
     background: var(--accent);
-    color: #ffffff;
-    box-shadow: 0 4px 10px rgba(107, 142, 35, 0.2);
+    color: var(--primary-light);
+    box-shadow: 0 4px 10px var(--accent-glow);
 }
 
 .sidebar a:hover i {
@@ -81,8 +81,8 @@
 .sidebar a:active,
 .sidebar a.active {
     background: var(--accent);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+    color: var(--primary-light);
+    box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 /* ==================
@@ -232,10 +232,10 @@
 }
 
 /* Elegant light tones for specific cards */
-.card-green h3 { color: #556b2f; }
-.card-emerald h3 { color: #059669; }
-.card-amber h3 { color: #b45309; }
-.card-blue h3 { color: #2563eb; }
+.card-green h3 { color: var(--accent-hover); }
+.card-emerald h3 { color: var(--success); }
+.card-amber h3 { color: var(--warning); }
+.card-blue h3 { color: var(--info); }
 
 /* Responsive adjustments */
 @media (max-width: 992px) {

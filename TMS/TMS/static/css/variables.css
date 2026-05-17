@@ -23,6 +23,12 @@
     --text-main: #1f2937;
     --text-muted: #6b7280;
     --text-dark: #374151;
+    --text-table-header: #4b5563;
+    
+    /* Table & Hover Backgrounds */
+    --bg-table-header: rgba(250, 250, 250, 0.95);
+    --bg-hover: rgba(0, 0, 0, 0.015);
+    --bg-zebra: rgba(0, 0, 0, 0.005);
     
     /* Premium UI Elements */
     --border-color: rgba(0, 0, 0, 0.08);
@@ -52,6 +58,48 @@
     /* Transitions */
     --transition-fast: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     --transition-smooth: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-theme="dark"] {
+    --primary: #111827;
+    --primary-light: #1f2937;
+    --primary-lighter: #374151;
+    
+    /* Slightly brighter olive for better contrast on dark */
+    --accent: #8eb830;
+    --accent-glow: rgba(142, 184, 48, 0.2);
+    --accent-hover: #9cbf4b;
+    --accent-secondary: #a3cc98;
+    
+    --secondary: #ecc94b;
+    --secondary-glow: rgba(236, 201, 75, 0.2);
+    
+    /* Deep elegant dark backgrounds */
+    --bg-app: #0f1115;
+    --bg-sidebar: rgba(22, 24, 29, 0.95);
+    --bg-card: rgba(22, 24, 29, 0.95);
+    --bg-input: #1b1e24;
+    
+    /* Light text for dark backgrounds */
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-dark: #f9fafb;
+    --text-table-header: #9ca3af;
+    
+    /* Table & Hover Backgrounds */
+    --bg-table-header: rgba(30, 33, 40, 0.95);
+    --bg-hover: rgba(255, 255, 255, 0.03);
+    --bg-zebra: rgba(255, 255, 255, 0.01);
+    
+    /* Dark mode borders */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-light: rgba(255, 255, 255, 0.04);
+    --glass-border: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    /* Dark mode shadows */
+    --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 8px 20px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -6px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
 * {
