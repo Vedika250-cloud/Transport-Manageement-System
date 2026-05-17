@@ -7,7 +7,7 @@
     {% if session.role == 'admin' %}
     <form id="branchFilterForm" action="/set_branch_filter" method="POST" style="display: flex; gap: 10px; align-items: center;">
         <label for="branch_id" style="font-weight: 500; color: var(--text-muted); font-size: 14px;">Monitor Branch:</label>
-        <select name="branch_id" id="branch_id" onchange="document.getElementById('branchFilterForm').submit()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; box-shadow: var(--shadow-sm);">
+        <select name="branch_id" id="branch_id" data-searchable="true" onchange="document.getElementById('branchFilterForm').submit()">
             <option value="all">Global (All Branches)</option>
             {% for b in branches_list %}
             <option value="{{ b.branch_id }}" {% if session.get('admin_branch_filter')|string == b.branch_id|string %}selected{% endif %}>{{ b.branch_name }}</option>
@@ -243,7 +243,7 @@
                 <td>{{ t.start }}</td>
                 <td>
                     <form action="/update_trip_status/{{ t.id }}" method="POST" style="display:inline-flex; gap: 8px; align-items: center;">
-                        <select name="status" style="padding:6px; border-radius:4px; border: 1px solid var(--border-color); background: var(--bg-input);">
+                        <select name="status">
                             <option value="In Transit" {% if t.status == 'In Transit' %}selected{% endif %}>In Transit</option>
                             <option value="Delivered">Delivered</option>
                             <option value="Cancelled">Cancelled</option>

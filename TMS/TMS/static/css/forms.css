@@ -83,7 +83,7 @@
 }
 
 /* ==================
-   Custom Dropdown Options UI
+   Custom Dropdown Options UI (Global)
    ================== */
 .custom-select-wrapper {
     position: relative;
@@ -96,61 +96,70 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
-    background: var(--bg-input);
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    color: var(--text-main);
+    padding: 10px 16px; /* Dynamic padding to work nicely globally */
+    min-height: 44px;
+    background: var(--bg-input, #f9fafb);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: var(--radius-md, 8px);
+    font-size: 14px;
+    color: var(--text-main, #1f2937);
     cursor: pointer;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
-    transition: var(--transition-fast);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
+    transition: all 0.2s ease;
+}
+
+/* Allow different paddings based on context if needed */
+.input-group .custom-select-trigger {
+    padding: 16px;
+    font-size: 15px;
 }
 
 .custom-select-trigger:hover {
-    border-color: rgba(107, 142, 35, 0.4);
+    border-color: var(--primary-color, rgba(107, 142, 35, 0.5));
+    background: #ffffff;
 }
 
 .custom-select-wrapper.open .custom-select-trigger {
-    border-color: var(--accent);
+    border-color: var(--primary-color, #6b8e23);
     background: #ffffff;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 4px rgba(107, 142, 35, 0.15);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 0 0 3px rgba(107, 142, 35, 0.15);
 }
 
 .custom-select-trigger .arrow {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     fill: none;
-    stroke: #6b7280;
+    stroke: #9ca3af;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+    margin-left: 10px;
 }
 
 .custom-select-wrapper.open .custom-select-trigger .arrow {
     transform: rotate(180deg);
+    stroke: var(--primary-color, #6b8e23);
 }
 
 .custom-options {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     left: 0;
     right: 0;
-    background: var(--bg-card);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg), var(--glass-border);
+    background: #ffffff; /* Explicit white for dropdown */
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: var(--radius-md, 8px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1000;
-    max-height: 250px;
+    transform: translateY(-8px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 9999; /* Ensure it floats above tables, sidebars, and modals */
+    max-height: 280px;
     overflow-y: auto;
-    padding: 8px;
+    padding: 6px;
 }
 
 .custom-select-wrapper.open .custom-options {
@@ -162,25 +171,69 @@
 .custom-options::-webkit-scrollbar {
     width: 6px;
 }
+.custom-options::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px;
+}
 .custom-options::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
+    background: #d1d5db;
+    border-radius: 10px;
+}
+.custom-options::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Search input styling inside custom select */
+.custom-select-search {
+    padding: 10px 12px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-main);
+    outline: none;
+    margin-bottom: 4px;
+    font-family: inherit;
+}
+.custom-select-search::placeholder {
+    color: #9ca3af;
 }
 
 .custom-option {
-    padding: 12px 16px;
-    font-size: 15px;
-    color: var(--text-main);
-    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--text-main, #374151);
+    border-radius: 6px;
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: all 0.15s ease;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
-.custom-option:hover,
+.custom-option:hover {
+    background: rgba(107, 142, 35, 0.08); /* Very subtle green */
+    color: var(--primary-dark, #556b2f);
+}
+
 .custom-option.selected {
-    background: rgba(107, 142, 35, 0.1);
-    color: var(--accent-hover);
-    font-weight: 500;
+    background: rgba(107, 142, 35, 0.12); /* Slightly stronger for selected */
+    color: var(--primary-dark, #556b2f);
+    font-weight: 600;
+}
+
+/* Add a checkmark for selected item */
+.custom-option.selected::after {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23556b2f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.custom-option.hidden {
+    display: none !important;
 }

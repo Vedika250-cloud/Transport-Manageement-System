@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Custom Select Dropdowns
-    const selects = document.querySelectorAll('.input-group select');
+    // Global Custom Select Dropdowns
+    const selects = document.querySelectorAll('select:not(.no-custom)');
     selects.forEach(select => {
         // Hide original native select
         select.style.display = 'none';
@@ -85,6 +85,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create custom options dropdown list
         const optionsContainer = document.createElement('div');
         optionsContainer.className = 'custom-options';
+        
+        // Append to body to completely avoid overflow clipping from tables/cards!
+        document.body.appendChild(optionsContainer);
+
+        // Add search input if searchable
+        if (select.dataset.searchable === 'true') {
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.className = 'custom-select-search';
+            searchInput.placeholder = 'Search...';
+            
+            searchInput.addEventListener('click', (e) => e.stopPropagation());
+            searchInput.addEventListener('keyup', (e) => {
+                const filter = e.target.value.toLowerCase();
+                const opts = optionsContainer.querySelectorAll('.custom-option');
+                opts.forEach(opt => {
+                    if (opt.textContent.toLowerCase().includes(filter)) {
+                        opt.classList.remove('hidden');
+                    } else {
+                        opt.classList.add('hidden');
+                    }
+                });
+            });
+            optionsContainer.appendChild(searchInput);
+        }
 
         // Populate options based on native select options
         Array.from(select.options).forEach((option) => {
@@ -99,36 +124,99 @@ document.addEventListener('DOMContentLoaded', () => {
             customOption.addEventListener('click', (e) => {
                 e.stopPropagation();
                 // Assign value to original select so form submission works properly
-                select.value = option.value;
+                if (select.value !== option.value) {
+                    select.value = option.value;
+                    // Trigger native change event so inline onchange and listeners work
+                    select.dispatchEvent(new Event('change'));
+                }
+                
                 // Update text
                 trigger.querySelector('span').textContent = option.text;
+                
                 // Refresh selection styles
                 optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
                 customOption.classList.add('selected');
+                
+                // Reset search if exists
+                const search = optionsContainer.querySelector('.custom-select-search');
+                if (search) {
+                    search.value = '';
+                    optionsContainer.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('hidden'));
+                }
+                
                 // Close wrapper
                 wrapper.classList.remove('open');
+                optionsContainer.classList.remove('open');
             });
             optionsContainer.appendChild(customOption);
         });
+
+        // Function to update position
+        const updatePosition = () => {
+            if (!optionsContainer.classList.contains('open')) return;
+            const rect = trigger.getBoundingClientRect();
+            const dropdownHeight = 250; // Max height approx
+            const spaceBelow = window.innerHeight - rect.bottom;
+            
+            optionsContainer.style.width = rect.width + 'px';
+            optionsContainer.style.left = rect.left + window.scrollX + 'px';
+
+            if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+                // Open upwards
+                optionsContainer.style.top = 'auto';
+                optionsContainer.style.bottom = (window.innerHeight - rect.top - window.scrollY + 6) + 'px';
+            } else {
+                // Open downwards
+                optionsContainer.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+                optionsContainer.style.bottom = 'auto';
+            }
+        };
 
         // Toggle open/close logic
         trigger.addEventListener('click', (e) => {
             e.stopPropagation();
             // Close other open wrappers
-            document.querySelectorAll('.custom-select-wrapper').forEach(w => {
-                if(w !== wrapper) w.classList.remove('open');
-            });
+            document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+            document.querySelectorAll('.custom-options').forEach(o => o.classList.remove('open'));
+            
             wrapper.classList.toggle('open');
+            
+            if (wrapper.classList.contains('open')) {
+                optionsContainer.classList.add('open');
+                updatePosition();
+
+                // Force layout reflow so animation works properly with new transform origin
+                void optionsContainer.offsetWidth;
+                optionsContainer.style.transform = 'translateY(0)';
+
+                const search = optionsContainer.querySelector('.custom-select-search');
+                if (search) setTimeout(() => search.focus(), 100);
+            }
         });
 
+        window.addEventListener('scroll', updatePosition, true);
+        window.addEventListener('resize', updatePosition);
+
         wrapper.appendChild(trigger);
-        wrapper.appendChild(optionsContainer);
+        // We append the optionsContainer to document.body initially so it's not inside wrapper anymore
         select.parentNode.insertBefore(wrapper, select.nextSibling);
+        
+        // Listen for external changes to the native select (e.g. resets)
+        select.addEventListener('change', () => {
+            const newSelected = select.options[select.selectedIndex];
+            if (newSelected) {
+                trigger.querySelector('span').textContent = newSelected.text;
+                optionsContainer.querySelectorAll('.custom-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.value === newSelected.value);
+                });
+            }
+        });
     });
 
     // Close all when clicking outside
     document.addEventListener('click', () => {
         document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+        document.querySelectorAll('.custom-options').forEach(o => o.classList.remove('open'));
     });
 
     // Live Table Search Filter
